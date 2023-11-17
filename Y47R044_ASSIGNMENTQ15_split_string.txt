@@ -1,0 +1,23 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R115_ASSIGNMENTQ15
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R115_ASSIGNMENTQ15.
+
+PARAMETERS: gv_str TYPE string.
+
+DATA: words TYPE TABLE OF string,
+        word  TYPE string.
+
+  WRITE: / 'Input String:', gv_str.
+  SKIP.
+  ULINE.
+
+  SPLIT gv_str AT space INTO TABLE words.
+
+  WRITE / 'Split String:'.
+  skip.
+  LOOP AT words INTO word.
+    WRITE: / word.
+  ENDLOOP.

@@ -1,0 +1,64 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R072_OOPS_ASSIGNMENT_3_2
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R072_OOPS_ASSIGNMENT_3_2.
+
+CLASS mobile_class DEFINITION ABSTRACT.
+  PUBLIC SECTION.
+    METHODS: name ABSTRACT,
+      Color.
+ENDCLASS.
+
+
+CLASS mobile_class IMPLEMENTATION.
+  METHOD color.
+    WRITE: / 'Mobile  Color is Black'.
+  ENDMETHOD.
+ENDCLASS.
+
+
+
+CLASS mobile1 DEFINITION INHERITING FROM mobile_class.
+  PUBLIC SECTION.
+    METHODS: name REDEFINITION.
+ENDCLASS.
+
+CLASS mobile1 IMPLEMENTATION.
+  METHOD name.
+    WRITE: / 'Mobile name is Samsung'.  "---"redefined from abstract class  "'.
+  ENDMETHOD.
+ENDCLASS.
+
+
+
+CLASS mobile2 DEFINITION INHERITING FROM mobile_class.
+  PUBLIC SECTION.
+    METHODS: name REDEFINITION.
+ENDCLASS.
+
+CLASS mobile2 IMPLEMENTATION.
+
+  METHOD name.
+    WRITE: / 'Mobile name is iphone and its color is White'.  "redefined from abstract class 2 "'.
+    skip.
+  ENDMETHOD.
+ENDCLASS.
+
+
+
+START-OF-SELECTION.
+
+  DATA: mobile1 TYPE REF TO mobile1,
+        mobile2 TYPE REF TO mobile2.
+  CREATE OBJECT mobile1.
+  CREATE OBJECT mobile2.
+
+  WRITE: / 'REDEFINING ABSTRACT CLASS name' color 3 INTENSIFIED off.
+  CALL METHOD mobile1->name.
+  SKIP.
+  WRITE: / 'REDEFINING ABSTRACT CLASS name' COLOR 5 INTENSIFIED OFF.
+  CALL METHOD mobile2->name.
+
+  CALL METHOD mobile2->color.

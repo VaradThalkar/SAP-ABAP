@@ -1,0 +1,148 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R064_OOPS_ALV_HOTSPOT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R064_OOPS_ALV_HOTSPOT.
+
+CLASS lcl_handle_events DEFINITION DEFERRED.
+START-OF-SELECTION.
+
+  TYPES : BEGIN OF ty_mara,
+            matnr TYPE mara-matnr,
+            mtart TYPE mara-mtart,
+            mbrsh TYPE mara-mbrsh,
+            meins TYPE mara-meins,
+          END OF ty_mara.
+  DATA : it_mara TYPE TABLE OF ty_mara,
+         wa_mara TYPE ty_mara,
+         it_marc TYPE TABLE of marc,
+         wa_marc TYPE marc.
+
+  DATA : lr_alv TYPE REF TO cl_salv_table,
+        lr_alv1 TYPE REF TO cl_salv_table.
+  SELECT matnr mtart mbrsh meins FROM mara INTO TABLE it_mara UP TO 25 ROWS.
+
+  TRY.
+*                        TRY.
+      CALL METHOD cl_salv_table=>factory
+*                          EXPORTING
+*                            list_display   = IF_SALV_C_BOOL_SAP=>FALSE
+*                            r_container    =
+*                            container_name =
+        IMPORTING
+          r_salv_table = lr_alv
+        CHANGING
+          t_table      = it_mara.
+*                          CATCH cx_salv_msg.
+*                        ENDTRY.
+*        PERFORM enable_layout_settings.
+        PERFORM optimize_column_width .
+      CATCH cx_salv_msg.
+
+  ENDTRY.
+
+  DATA : lr_columns TYPE REF TO cl_salv_columns_table,
+         lr_column  TYPE REF TO cl_salv_column_table.
+  CALL METHOD lr_alv->get_columns
+    RECEIVING
+      value = lr_columns.
+
+  IF lr_columns IS NOT INITIAL.
+
+    TRY.
+      lr_column ?= lr_columns->get_column( 'MTART' ). " GET MATNR COL TO INSRT AS HOTSPOT.
+      CALL METHOD lr_column->set_cell_type
+      EXPORTING
+        value = if_salv_c_cell_type=>hotspot.
+    CATCH cx_salv_not_found.
+
+    ENDTRY.
+
+  ENDIF.
+
+*  lr_alv->display( ).
+DATA : gr_events TYPE REF TO lcl_handle_events.
+
+CLASS lcl_handle_events DEFINITION.
+  PUBLIC SECTION.
+    METHODS:
+      on_line_click FOR EVENT link_click OF cl_Salv_events_table
+        IMPORTING row column.
+ENDCLASS.
+
+DATA : lr_events TYPE REF TO cl_Salv_events_table.
+lr_events = lr_alv->get_event( ).
+CREATE OBJECT gr_events.
+SET HANDLER gr_events->on_line_click FOR lr_events.
+
+*lr_alv->set_screen_status(
+*pfstatus = 'SALV_STANDARD'
+*report = 'SALV_TEST_FUNCTIONS'
+*set_functions = lr_alv->c_functions_all ).
+
+lr_alv->display( ).
+
+CLASS lcl_handle_events IMPLEMENTATION.
+  METHOD on_line_click.
+    READ TABLE it_mara INTO wa_mara INDEX row.
+
+    IF sy-subrc EQ 0.
+*      SET PARAMETER ID 'MAT' FIELD wa_mara-matnr.
+*      CALL TRANSACTION 'MM03' AND SKIP FIRST SCREEN.
+*      SELECT * FROM marc INTO TABLE it_marc WHERE matnr = s_matnr.
+
+     SELECT * FROM marc INTO TABLE it_marc WHERE matnr = wa_mara-matnr.
+
+       TRY.
+*                        TRY.
+      CALL METHOD cl_salv_table=>factory
+*                          EXPORTING
+*                            list_display   = IF_SALV_C_BOOL_SAP=>FALSE
+*                            r_container    =
+*                            container_name =
+        IMPORTING
+          r_salv_table = lr_alv1
+        CHANGING
+          t_table      = it_marc.
+*                          CATCH cx_salv_msg.
+*                        ENDTRY.
+*        PERFORM enable_layout_settings.
+        PERFORM optimize_column_width1 .
+      CATCH cx_salv_msg.
+
+  ENDTRY.
+  lr_alv1->display( ).
+    ENDIF.
+  ENDMETHOD.
+ENDCLASS.
+
+
+*&---------------------------------------------------------------------*
+*& Form optimize_column_width
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM optimize_column_width .
+DATA columns TYPE REF TO cl_salv_columns_table.
+  columns = lr_alv->get_columns( ).
+
+  columns->set_optimize(  ).
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form optimize_column_width1
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM optimize_column_width1 .
+DATA columns TYPE REF TO cl_salv_columns_table.
+  columns = lr_alv1->get_columns( ).
+
+  columns->set_optimize(  ).
+ENDFORM.

@@ -1,0 +1,87 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R103_ASSIGNMENTQ3
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r103_assignmentq3.
+
+PARAMETERS: gv_start TYPE i,
+            gv_end   TYPE i.
+
+START-OF-SELECTION.
+  DATA: count       TYPE i,
+        tablecount  TYPE i,
+        extraColumn TYPE i,
+        temp        TYPE i,
+        result      TYPE i,
+        i           TYPE i VALUE 1,
+        j           TYPE i VALUE 1,
+        k           TYPE i.
+
+  WRITE: / 'Starting number is:', gv_start LEFT-JUSTIFIED.
+  WRITE: / 'Ending number is  :', gv_end LEFT-JUSTIFIED.
+  uline.
+
+  IF ( gv_end - gv_start ) < 5.
+    count = gv_end - gv_start  + 1.
+    tablecount = count / 5.
+    DO tablecount TIMES.
+      temp = gv_end.
+      WHILE j <= 10.
+        k = gv_start.
+        WHILE k <= temp.
+          result = j * k.
+          WRITE result CENTERED .
+          k += 1.
+        ENDWHILE.
+        SKIP.
+        k = 1.
+        j += 1.
+      ENDWHILE.
+      ULINE.
+      IF gv_end > temp.
+        gv_start = temp + 1.
+      ENDIF.
+      j = 1.
+    ENDDO.
+  ELSE.
+    count = gv_end - gv_start  + 1.
+    tablecount = count / 5.
+    extraColumn = count MOD 5.
+
+    DO tablecount TIMES.
+      temp = gv_start + 4.
+      WHILE j <= 10.
+        k = gv_start.
+        WHILE k <= temp.
+          result = j * k.
+          WRITE result CENTERED.
+          k += 1.
+        ENDWHILE.
+        SKIP.
+        k = 1.
+        j += 1.
+      ENDWHILE.
+      IF gv_end > temp.
+        gv_start = temp + 1.
+      ENDIF.
+      ULINE.
+      j = 1.
+    ENDDO.
+    i = 1.
+
+    IF extracolumn > 0.
+      WHILE i <= 10.
+        j = gv_end - extracolumn + 1.
+        WHILE j <= gv_end.
+          RESult = i * j.
+          WRITE result CENTERED.
+
+          j += 1.
+        ENDWHILE.
+        SKIP.
+*       j = 1.
+        i += 1.
+      ENDWHILE.
+    ENDIF.
+  ENDIF.

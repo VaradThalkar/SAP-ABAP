@@ -1,0 +1,72 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R002_BASIC_DEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r002_basic_demo LINE-SIZE 80 LINE-COUNT 30(3) NO STANDARD PAGE HEADING.
+
+TABLES : but000.
+SELECTION-SCREEN: BEGIN OF BLOCK blk1 WITH FRAME TITLE TEXT-001.
+  SELECT-OPTIONS: s_bp FOR but000-partner.
+SELECTION-SCREEN: END OF BLOCK blk1.
+*
+*INITIALIZATION.
+*
+*AT SELECTION-SCREEN.
+*  IF p_bp IS INITIAL.
+*    MESSAGE 'Please enter the BP Number' TYPE 'E'.
+*  ENDIF.
+
+TOP-OF-PAGE.
+  WRITE: 'Report for Business partner table but000' COLOR 7.
+  ULINE.
+  WRITE: / 'Partner' COLOR 3,
+        24 'Type' COLOR 3,
+        38 'BPKIND' COLOR 3,
+        53 'Name_FIRST' COLOR 3,
+        70 'Name_LAST' COLOR 3.
+  ULINE.
+
+END-OF-PAGE.
+
+START-OF-SELECTION.
+
+  WRITE: / '0033000000011' COLOR 1,
+        24 'Company' COLOR 2,
+        38 'NGO' COLOR 3,
+        53 'Helping India' COLOR 4,
+        70 'LLP' COLOR 5.
+
+
+  WRITE: / '0033000000012',
+        24 'Company2',
+        38 'NGO2',
+        53 'Serve People',
+        70 'LLP'.
+
+  WRITE: / '0033000000013' COLOR 1,
+        24 'Company10',
+        38 'Non Profit',
+        53 'Kids org',
+        70 'LLP'.
+
+END-OF-SELECTION.
+  ULINE.
+  SKIP.
+  WRITE: / 'End- of - report' COLOR 7.
+
+*    SELECT partner, type, bpkind, name_last, name_first
+*      FROM but000
+*      INTO TABLE @DATA(lt_but000)
+*      UP TO 10 ROWs
+*      WHERE partner in   @s_bp.
+*LOOP AT lt_but000 INTO data(ls_but000).
+*  WRITE: / ls_but000-Partner,
+*        24 ls_but000-Type,
+*        38 ls_but000-BPKIND,
+*        53 ls_but000-Name_FIRST,
+*        64 ls_but000-Name_LAST.
+*  ENDLOOP.
+
+  ULINE.
+  SKIP.

@@ -1,0 +1,43 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R067_CLASS_EXCEPTION
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R067_CLASS_EXCEPTION.
+
+CLASS c1 DEFINITION.
+  PUBLIC SECTION.
+    METHODS : m1 IMPORTING  num1 TYPE i
+                 EXPORTING  num2 TYPE i
+                 EXCEPTIONS e1.
+ENDCLASS.
+
+CLASS c1 IMPLEMENTATION.
+  METHOD : m1.
+    IF num1 LT 5.
+*      MESSAGE i999(00) WITH 'should be >=5' RAISING e1.
+      MESSAGE i999(00) WITH 'should be >=5' RAISING e1.
+    ELSE.
+      num2 = num1 * 5.
+    ENDIF.
+  ENDMETHOD.
+ENDCLASS.
+
+PARAMETERS : p_no TYPE i.
+
+START-OF-SELECTION.
+  DATA : obj1 TYPE REF TO c1.
+  CREATE OBJECT obj1.
+ call METHOD obj1->m1
+    EXPORTING
+      num1 = p_no
+    IMPORTING
+      num2 = p_no
+    EXCEPTIONS
+      e1   = 1.
+
+  IF sy-subrc <> 0.
+    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno WITH sy-msgv1 sy-msgv2.
+  ELSE .
+    WRITE :/5 p_no.
+  ENDIF.

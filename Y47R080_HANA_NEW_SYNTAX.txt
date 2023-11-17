@@ -1,0 +1,157 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R080_HANA_NEW_SYNTAX
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R080_HANA_NEW_SYNTAX.
+
+
+START-OF-SELECTION.
+
+  SELECTION-SCREEN BEGIN OF BLOCK b WITH FRAME TITLE TEXT-001.
+    PARAMETERS: p_rbsel  RADIOBUTTON GROUP rg,
+                p_rbcase RADIOBUTTON GROUP rg,
+                p_rbinj  RADIOBUTTON GROUP rg,
+                p_rbloj  RADIOBUTTON GROUP rg,
+                p_rbgb   RADIOBUTTON GROUP rg,
+                p_rbcoal RADIOBUTTON GROUP rg,
+                p_rbceil RADIOBUTTON GROUP rg,
+                p_rbflr  RADIOBUTTON GROUP rg,
+                p_rbcnct RADIOBUTTON GROUP rg,
+                p_rbdist RADIOBUTTON GROUP rg.
+  SELECTION-SCREEN END OF BLOCK b.
+
+  " Select Query new syntax
+  IF p_rbsel = abap_true.
+    SELECT * FROM y47m_empmst INTO TABLE @DATA(gt_empmst).
+    cl_demo_output=>write_text( text = 'New Syntax for Select Query' ).
+    cl_demo_output=>display( gt_empmst ).
+  ENDIF.
+
+  "Case statement inside query
+  IF p_rbcase = abap_true.
+    SELECT empnm,
+      CASE
+      WHEN gender = 'M' THEN 'Male'
+      WHEN gender = 'F' THEN 'Female'
+      WHEN gender = 'O' THEN 'Others'
+      END AS emp_gender
+      FROM y47m_empmst
+      INTO TABLE @DATA(gt_empmst1).
+    cl_demo_output=>write_text( text = 'Case Statement to Change "M" -> Male "F" -> Female "O" -> Others' ).
+    cl_demo_output=>display( gt_empmst1 ).
+  ENDIF.
+
+  "Inner Join
+  IF p_rbinj = abap_true.
+    SELECT
+      a~empno AS Employee_Number,
+      a~empnm AS Employee_Name,
+
+      b~yymm AS Year_Month
+
+      FROM y47m_empmst AS a
+      INNER JOIN y47d_mtdatt AS b
+      ON a~empno = b~empno
+      INTO TABLE @DATA(gt_empatt) ORDER BY a~empno.
+    cl_demo_output=>write_text( text = 'Inner Join with New Syntax' ).
+    cl_demo_output=>display( gt_empatt ).
+  ENDIF.
+
+  "Left Outer Join
+
+  IF p_rbloj = abap_true.
+
+    SELECT
+      a~empno AS Employee_Number,
+      a~empnm AS Employee_Name,
+
+      b~yymm AS Year_Month
+
+      FROM y47m_empmst AS a
+      LEFT OUTER JOIN y47d_mtdatt AS b
+      ON a~empno = b~empno
+      INTO TABLE @DATA(gt_empatt1) ORDER BY a~empno.
+    cl_demo_output=>write_text( text = 'Left Outer Join with New Syntax' ).
+    cl_demo_output=>display( gt_empatt1 ).
+  ENDIF.
+  " Group by
+
+  IF p_rbgb = abap_true.
+    SELECT deptcd, wlcd
+       FROM y47m_empmst
+    GROUP BY wlcd, deptcd
+      INTO TABLE @DATA(gt_empgrp).
+    cl_demo_output=>write_text( text = 'Group By clause' ).
+    cl_demo_output=>display( gt_empgrp ).
+  ENDIF.
+
+  "Coalesce
+  IF p_rbcoal = abap_true.
+    SELECT
+      a~empno AS Employee_Number,
+      a~empnm AS Employee_Name,
+
+*  b~yymm AS Year_Month
+    coalesce( b~yymm, '111111' ) AS Year_Month
+
+      FROM y47m_empmst AS a
+      LEFT OUTER JOIN y47d_mtdatt AS b
+      ON a~empno = b~empno
+      INTO TABLE @DATA(gt_empatt2) ORDER BY a~empno.
+    cl_demo_output=>write_text( text = 'Coalsce Function: Replacing null values with "111111"' ).
+    cl_demo_output=>display( gt_empatt2 ).
+  ENDIF.
+
+
+  " Ceil Function
+  IF p_rbceil = abap_true.
+    SELECT empno AS Employee_No,
+          yymm AS Year_Month,
+      salhd AS Salary_Head,
+      ceil( salary ) AS Salary,
+      waers AS Waers
+      FROM y47d_saltrn INTO TABLE @DATA(gt_saltrn).
+    cl_demo_output=>write_text( text = 'Ceil Function to Round Up Salary' ).
+    cl_demo_output=>display( gt_saltrn ).
+  ENDIF.
+  " Floor Function
+  IF p_rbflr = abap_true.
+    SELECT empno AS Employee_No,
+          yymm AS Year_Month,
+      salhd AS Salary_Head,
+      floor( salary ) AS Salary,
+      waers AS Waers
+      FROM y47d_saltrn INTO TABLE @DATA(gt_saltrn1).
+    cl_demo_output=>write_text( text = 'Floor Function to Round Down Salary' ).
+    cl_demo_output=>display( gt_saltrn1 ).
+  ENDIF.
+
+  " Concatenate two fields in one
+  IF p_rbcnct = abap_true.
+    SELECT a~empno AS Employee_No,
+    a~empnm AS Employee_Name,
+    b~wlcd && '(' && b~wldesc && ')' AS Location
+*a~designation AS Designation
+    FROM y47m_empmst AS a
+    INNER JOIN y47c_workloc AS b
+    ON a~wlcd = b~wlcd
+    INTO TABLE @DATA(gt_emploc).
+
+    cl_demo_output=>write_text( text = 'Concatenating two fields into one field for Work Location Code and Description' ).
+    cl_demo_output=>display( gt_emploc ).
+  ENDIF.
+
+  " Without Distinct Keyword
+  IF p_rbdist = abap_true.
+    SELECT salhd FROM y47d_saltrn INTO TABLE @DATA(gt_table).
+    cl_demo_output=>write_text( text = 'Salary Head from Transaction table Without Distinct Keyword' ).
+    cl_demo_output=>display( gt_table ).
+
+
+    " Distinct Keyword
+    SELECT DISTINCT salhd FROM y47d_saltrn INTO TABLE @DATA(gt_table1).
+    cl_demo_output=>write_text( text = 'Salary Head from Transaction table With Distinct Keyword' ).
+    cl_demo_output=>display( gt_table1 ).
+
+  ENDIF.

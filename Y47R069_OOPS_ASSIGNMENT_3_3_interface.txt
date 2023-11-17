@@ -1,0 +1,44 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R069_OOPS_ASSIGNMENT_3_3
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R069_OOPS_ASSIGNMENT_3_3.
+
+INTERFACE my_interface.
+  METHODS: inter_method.
+ENDINTERFACE.
+
+CLASS normal_class DEFINITION.
+
+  PUBLIC SECTION.
+    METHODS: normal_method.
+    INTERFACES: my_interface.
+ENDCLASS.
+
+CLASS normal_class IMPLEMENTATION.
+  METHOD normal_method.
+    WRITE: / 'Method in Normal Class' .
+    SKIP.
+  ENDMETHOD.
+
+  METHOD my_interface~inter_method.
+    WRITE: / 'Method in Interface'.
+    SKIP.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+
+  WRITE / 'LOCAL CLASS IMPLEMENTATION' COLOR 6.
+  DATA(obj) = NEW normal_class( ).
+  CALL METHOD : obj->my_interface~inter_method,
+  obj->normal_method.
+  ULINE.SKIP.
+  WRITE / 'GLOBAL CLASS IMPLEMENTATION' COLOR 6.
+  DATA(gobj) = NEW y47cl_interface_demo( ).
+  CALL METHOD: gobj->y47if_interface_eg~if_m1.
+  skip.
+  call method gobj->method.
+
+END-OF-SELECTION.

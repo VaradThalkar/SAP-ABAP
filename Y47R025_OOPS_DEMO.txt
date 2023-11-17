@@ -1,0 +1,34 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R025_OOPS_DEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R025_OOPS_DEMO.
+
+CLASS class1 DEFINITION.
+  PUBLIC SECTION.
+    DATA: text1 type char25 VALUE 'public data'.
+    METHODS meth1.
+
+  PROTECTED SECTION.
+    DATA : text2 type char25 VALUE 'protected data'.
+
+  PRIVATE SECTION.
+    data: text3 type char25 value 'private data'.
+
+ENDCLASS.
+
+CLASS class1 IMPLEMENTATION.
+  METHOD meth1.
+    WRITE: / 'public method:',
+           /  text1,
+           /  text2,
+           /  text3.
+    skip.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+  Data(objectx) = new class1( ).
+  Call METHOD : objectx->meth1.
+  write :/ objectx->text1.

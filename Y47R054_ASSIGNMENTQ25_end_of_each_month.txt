@@ -1,0 +1,30 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R125_ASSIGNMENTQ25
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r125_assignmentq25.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+  PARAMETERS: p_from TYPE sy-datum,
+              p_to   TYPE sy-datum.
+SELECTION-SCREEN END OF BLOCK b1.
+
+DATA : lv_last_day TYPE sy-datum.
+
+
+START-OF-SELECTION.
+  WHILE p_from <= p_to.
+    CALL FUNCTION 'RP_LAST_DAY_OF_MONTHS'
+      EXPORTING
+        day_in            = p_from
+      IMPORTING
+        last_day_of_month = lv_last_day.
+
+    WRITE: / lv_last_day.
+
+    p_from = lv_last_day + 1.
+
+  ENDWHILE.
+
+END-OF-SELECTION.

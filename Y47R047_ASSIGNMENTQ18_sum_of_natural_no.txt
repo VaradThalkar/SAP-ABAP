@@ -1,0 +1,26 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R118_ASSIGNMENTQ18
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R118_ASSIGNMENTQ18.
+SELECTION-SCREEN BEGIN OF block b1.
+PARAMETERS: gv_num TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+
+AT SELECTION-SCREEN.
+  IF gv_num < 0.
+    MESSAGE 'Number can not be negative' TYPE 'E'.
+  ENDIF.
+
+START-OF-SELECTION.
+WRITE: / 'Input is:',gv_num.
+DATA: sum TYPE i,
+      i TYPE i.
+i = 1.
+WHILE i <= gv_num.
+  sum = sum + i.
+  i += 1.
+ENDWHILE.
+
+WRITE: /'sum is:',sum.

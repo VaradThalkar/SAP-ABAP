@@ -1,0 +1,70 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R061_POLIMORPHISM
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R061_POLIMORPHISM.
+
+CLASS cl_grand_par DEFINITION.
+ PUBLIC SECTION.
+ data: lv_message TYPE string.
+ METHODS: mt_display.
+ENDCLASS.
+
+CLASS cl_grand_par IMPLEMENTATION.
+  METHOD mt_display.
+    lv_message = 'Grand parents class method executed'.
+    WRITE: lv_message COLOR 3 INTENSIFIED off.
+  ENDMETHOD.
+ENDCLASS.
+
+class cl_parent DEFINITION INHERITING FROM cl_grand_par.
+  PUBLIC SECTION.
+    METHODS : mt_display REDEFINITION.
+ENDCLASS.
+
+class cl_parent IMPLEMENTATION.
+  METHOD mt_display.
+    lv_message = 'Parent class method executed'.
+    WRITE: lv_message COLOR 3 INTENSIFIED off.
+  ENDMETHOD.
+ENDCLASS.
+
+class cl_child DEFINITION INHERITING FROM cl_parent.
+  PUBLIC SECTION.
+    METHODS mt_display REDEFINITION.
+ENDCLASS.
+
+class cl_child IMPLEMENTATION.
+  METHOD mt_display.
+    lv_message = 'child class method executed'.
+    WRITE : lv_message COLOR 5 INTENSIFIED off.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+WRITE : 'Grand parent class section'.
+uline.
+SKIP.
+data(lo_grand_par) = new cl_grand_par( ).
+call METHOD lo_grand_par->mt_display.
+
+skip.
+SKIP.
+SKIP.
+WRITE : 'parent class section'.
+uline.
+DATA(lo_parent) = new cl_parent( ).
+call method lo_parent->mt_display.
+
+skip.
+skip.
+
+WRITE : 'Child class section'.
+ULINE.
+skip.
+skip.
+DATA(lo_child) = new cl_child( ).
+call method lo_child->mt_display.
+SKIP.
+uline.

@@ -1,0 +1,26 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R102_ASSIGNMENTQ2
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R102_ASSIGNMENTQ2.
+
+PARAMETERS: gv_input TYPE i.
+
+DATA: gv_temp TYPE i,
+      gv_rem TYPE i,
+      gv_rev TYPE i.
+
+gv_temp = gv_input.
+WRITE: / 'Input is:', gv_input LEFT-JUSTIFIED.
+WHILE gv_temp > 0.
+  gv_rem = gv_temp mod 10.
+  gv_rev = ( gv_rev * 10 ) + gv_rem.
+  gv_temp = gv_temp DIV 10.
+ENDWHILE.
+
+IF gv_rev eq gv_input.
+  WRITE: / gv_input, ': This is a pallendrome' COLOR 5.
+ELSE.
+  WRITE: / gv_input, ': This is not a pallendrome' COLOR 6.
+ENDIF.

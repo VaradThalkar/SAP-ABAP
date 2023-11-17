@@ -1,0 +1,79 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R075_OOPS_ASSIGNMENT_2_1
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R075_OOPS_ASSIGNMENT_2_1.
+
+CLASS zcl_ship_y47 DEFINITION.
+  PUBLIC SECTION.
+    METHODS :
+      speed
+        IMPORTING
+          sp1 TYPE i
+          sp2 TYPE i.
+    EVENTS :
+      damaged,
+      safe.
+ENDCLASS.
+
+CLASS zcl_ship_y47 IMPLEMENTATION.
+
+  METHOD speed.
+    IF sp1 GE sp2.
+      WRITE : / sp1.
+      RAISE EVENT damaged.
+    ELSE.
+      WRITE: / sp2.
+      RAISE EVENT safe.
+    ENDIF.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_event_handler DEFINITION.
+  PUBLIC SECTION.
+    METHODS :
+*    From Local Class
+*      speed_up FOR EVENT damaged OF zcl_ship_y47,
+*      speed_ok FOR EVENT safe OF zcl_ship_y47.
+
+*   From Global Class
+      speed_up FOR EVENT damaged OF y47cl_ship,
+      speed_ok FOR EVENT safe OF y47cl_ship.
+ENDCLASS.
+
+CLASS zcl_event_handler IMPLEMENTATION.
+  METHOD speed_up.
+    WRITE :  'Keep Your Speed Below 100',
+        / 'RAISE EVENT FOR MAXIMUM SPEED'.
+  ENDMETHOD.
+
+  METHOD speed_ok.
+    WRITE :  'You are safe keep your speed same',
+            / 'RAISE EVENT FOR SAFE SPEED'.
+  ENDMETHOD.
+ENDCLASS.
+ PARAMETERS : p_speed TYPE i.
+AT SELECTION-SCREEN.
+  IF P_SPEED IS INITIAL.
+    MESSAGE 'SPEED SHOULD NOT BE EMPTY' TYPE 'E'.
+    ENDIF.
+START-OF-SELECTION.
+
+* Local class
+*  DATA(obj) = NEW zcl_ship_y47( ).
+
+* Global Class
+  DATA(obj) = NEW y47cl_ship( ).
+
+  DATA(event) = NEW zcl_event_handler( ).
+  SET HANDLER event->speed_up FOR obj.
+  SET HANDLER event->speed_ok FOR obj.
+
+*Local class method call
+*  obj->speed( sp1 = p_speed sp2 = 100 ).
+
+*Global class method call
+  obj->speed( speed1 = p_speed speed2 = 100 ).
+
+END-OF-SELECTION.

@@ -1,0 +1,161 @@
+report Y47B002_MONTHLY_ATTENDANCE
+       no standard page heading line-size 255.
+
+* Include bdcrecx1_s:
+* The call transaction using is called WITH AUTHORITY-CHECK!
+* If you have own auth.-checks you can use include bdcrecx1 instead.
+include bdcrecx1_s.
+
+parameters: dataset(132) lower case.
+***    DO NOT CHANGE - the generated data section - DO NOT CHANGE    ***
+*
+*   If it is nessesary to change the data section use the rules:
+*   1.) Each definition of a field exists of two lines
+*   2.) The first line shows exactly the comment
+*       '* data element: ' followed with the data element
+*       which describes the field.
+*       If you don't have a data element use the
+*       comment without a data element name
+*   3.) The second line shows the fieldname of the
+*       structure, the fieldname must consist of
+*       a fieldname and optional the character '_' and
+*       three numbers and the field length in brackets
+*   4.) Each field must be type C.
+*
+*** Generated data section with specific formatting - DO NOT CHANGE  ***
+types: begin of ty_tab,
+        YYMM type y47d_mtdatt-yymm,
+        EMPNO type y47d_mtdatt-empno,
+        DAYS_PRESENT type y47d_mtdatt-days_present,
+      end of ty_tab.
+
+*** End generated data section ***
+
+DATA : gt_tab TYPE TABLE OF ty_tab,
+       gs_tab TYPE ty_tab.
+
+DATA : gv_no_of_errors TYPE i.
+
+SELECTION-SCREEN BEGIN OF BLOCK mblkx1 WITH FRAME TITLE TEXT-006.
+  PARAMETERS : p_filenm  LIKE rlgrap-filename  DEFAULT 'C:\data\attdata.txt'.
+SELECTION-SCREEN END OF BLOCK mblkx1.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_filenm.
+
+  DATA: lt_filetab TYPE filetable,
+        lt_rc      TYPE i.
+
+  CALL METHOD cl_gui_frontend_services=>file_open_dialog
+    CHANGING
+      file_table = lt_filetab
+      rc         = lt_rc
+    EXCEPTIONS
+      OTHERS     = 01.
+
+  CHECK lt_rc EQ 1.
+  READ TABLE lt_filetab INDEX 1 INTO p_filenm.
+
+start-of-selection.
+
+PERFORM upload_data.
+
+END-OF-SELECTION.
+
+  PERFORM run_bdc.
+
+form run_bdc.
+
+data lv_cdays_present type char3.
+  PERFORM open_group.
+   read table gt_tab into gs_tab index 1.
+
+perform bdc_dynpro      using 'Y47M002_MTDATT' '0100'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=ENTR'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'Y47D_MTDATT-YYMM'.
+perform bdc_field       using 'Y47D_MTDATT-YYMM'
+                              gs_tab-yymm.
+
+ LOOP AT gt_tab INTO gs_tab.
+
+   write gs_tab-days_present to lv_cdays_present.
+    CONDENSE lv_cdays_present.
+perform bdc_dynpro      using 'Y47M002_MTDATT' '0200'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=BOT'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'Y47S_MTDATT_EXT-DAYS_PRESENT(01)'.
+perform bdc_field       using 'Y47S_MTDATT_EXT-EMPNO(01)'
+                              gs_tab-EMPNO.
+perform bdc_field       using 'Y47S_MTDATT_EXT-DAYS_PRESENT(01)'
+                              lv_cDAYS_PRESENT.
+ENDLOOP.
+perform bdc_dynpro      using 'Y47M002_MTDATT' '0200'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=SAVE'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'Y47S_MTDATT_EXT-DAYS_PRESENT(01)'.
+perform bdc_transaction using 'Y47MATT'.
+
+perform close_group.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form upload_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM upload_data .
+DATA lv_filename TYPE string.
+  lv_filename = p_filenm.
+
+  CALL FUNCTION 'GUI_UPLOAD'
+    EXPORTING
+      filename                = lv_filename
+      filetype                = 'DAT'
+*     HAS_FIELD_SEPARATOR     = ' '
+*     HEADER_LENGTH           = 0
+*     READ_BY_LINE            = 'X'
+*     DAT_MODE                = ' '
+*     CODEPAGE                = ' '
+*     IGNORE_CERR             = ABAP_TRUE
+*     REPLACEMENT             = '#'
+*     CHECK_BOM               = ' '
+*     VIRUS_SCAN_PROFILE      =
+*     NO_AUTH_CHECK           = ' '
+* IMPORTING
+*     FILELENGTH              =
+*     HEADER                  =
+    TABLES
+      data_tab                = gt_tab
+* CHANGING
+*     ISSCANPERFORMED         = ' '
+    EXCEPTIONS
+      file_open_error         = 1
+      file_read_error         = 2
+      no_batch                = 3
+      gui_refuse_filetransfer = 4
+      invalid_type            = 5
+      no_authority            = 6
+      unknown_error           = 7
+      bad_data_format         = 8
+      header_not_allowed      = 9
+      separator_not_allowed   = 10
+      header_too_long         = 11
+      unknown_dp_error        = 12
+      access_denied           = 13
+      dp_out_of_memory        = 14
+      disk_full               = 15
+      dp_timeout              = 16
+      OTHERS                  = 17.
+  .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+
+ENDFORM.

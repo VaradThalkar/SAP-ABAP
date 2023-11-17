@@ -1,0 +1,71 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R017_CLAUSEDEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R017_CLAUSEDEMO.
+types : BEGIN OF ty_salmst,
+        empno TYPE y47m_salmst-empno,
+        salary type y47m_salmst-salary,
+  END OF ty_salmst.
+Data : gs_salmst TYPE ty_salmst,
+       gt_salmst TYPE TABLE of ty_salmst.
+
+START-OF-SELECTION.
+WRITE: / 'Group by' COLOR 1.
+select empno,sum( salary )
+  from y47m_salmst
+  into table @gt_salmst
+  GROUP BY empno.
+
+LOOP AT gt_salmst into gs_salmst.
+  at FIRST.
+    WRITE: / 'empno' , 10 'salary'.
+    ULINE.
+  ENDAT.
+  WRITE: / gs_salmst-empno, 10 gs_salmst-salary.
+ENDLOOP.
+uline.
+skip.
+
+*----Having
+WRITE: / 'Group by using having' COLOR 1.
+select empno,sum( salary )
+  from y47m_salmst
+  into table @gt_salmst
+  GROUP BY empno
+  HAVING empno = '1001'.
+
+LOOP AT gt_salmst into gs_salmst.
+  at FIRST.
+    WRITE: / 'empno' , 10 'salary'.
+    ULINE.
+  ENDAT.
+  WRITE: / gs_salmst-empno, 10 gs_salmst-salary.
+ENDLOOP.
+uline.
+skip.
+
+
+*----for all entries
+WRITE: / 'for all entries' COLOR 1.
+
+
+data: gt_empmst TYPE TABLE OF y47m_empmst,
+      gt_salmst1 TYPE TABLE OF y47m_salmst.
+
+SELECT *
+  FROM y47m_empmst
+  INTO TABLE gt_empmst
+  WHERE empno in ( '1001','1002' ).
+
+IF sy-subrc = 0.
+  SELECT *
+    from y47m_salmst
+    FOR ALL ENTRIES IN @gt_empmst
+    WHERE empno = @gt_empmst-empno
+    into TABLE @gt_salmst1.
+    IF sy-subrc = 0.
+
+    ENDIF.
+ENDIF.

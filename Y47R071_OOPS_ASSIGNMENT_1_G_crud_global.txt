@@ -1,0 +1,31 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R071_OOPS_ASSIGNMENT_1_G
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R071_OOPS_ASSIGNMENT_1_G.
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: prb_cre RADIOBUTTON GROUP rg, "MODIF ID md1,
+              prb_mod RADIOBUTTON GROUP rg,  "MODIF ID md1,
+              prb_del RADIOBUTTON GROUP rg.
+SELECTION-SCREEN END OF BLOCK b2.
+
+DATA : lr_alv TYPE REF TO cl_salv_table.
+DATA: gt_empmst TYPE TABLE OF y47m_empmst1,
+      gs_empmst TYPE y47m_empmst1.
+
+
+START-OF-SELECTION.
+
+data(obj) = new y47cl_employee( ).
+*
+
+  IF prb_cre = abap_true.
+    CALL METHOD obj->create.
+  ELSEIF prb_mod = abap_true.
+    CALL METHOD obj->modify.
+  ELSEIF prb_del = abap_true.
+    CALL METHOD obj->delete.
+  ENDIF.
+
+END-OF-SELECTION.

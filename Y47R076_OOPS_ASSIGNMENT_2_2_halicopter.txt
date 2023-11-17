@@ -1,0 +1,63 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R0756_OOPS_ASSIGNMENT_2_2
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R076_OOPS_ASSIGNMENT_2_2.
+
+
+PARAMETERS: p_name  TYPE string,
+            p_speed TYPE i.
+
+CLASS y47cl_helicopter DEFINITION INHERITING FROM y47cl_ship.
+
+  PUBLIC SECTION.
+    METHODS: receive IMPORTING iv_text TYPE string.
+ENDCLASS.
+
+CLASS zcl_event_handler DEFINITION.
+  PUBLIC SECTION.
+    METHODS :
+      speed_up FOR EVENT damaged OF y47cl_helicopter,
+      speed_ok FOR EVENT safe OF y47cl_helicopter.
+ENDCLASS.
+
+CLASS y47cl_helicopter IMPLEMENTATION.
+  METHOD receive.
+    WRITE: / 'Name of Ship is: ', iv_text, /.
+
+    IF p_speed GT 100.
+      RAISE EVENT damaged.
+    ELSE.
+      RAISE EVENT safe.
+    ENDIF.
+
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_event_handler IMPLEMENTATION.
+  METHOD speed_up.
+    WRITE :  'Keep Your Speed Below 100',
+        / 'Event Handled Using The Helicopter'.
+  ENDMETHOD.
+
+  METHOD speed_ok.
+    WRITE :  'You are safe keep your speed same',
+            / 'Event Handled Using The Helicopter'.
+  ENDMETHOD.
+ENDCLASS.
+
+AT SELECTION-SCREEN.
+  IF p_speed is INITIAL or p_name is INITIAL.
+    MESSAGE 'Input Should Not be empty' type 'E'.
+  ENDIF.
+
+START-OF-SELECTION.
+
+  DATA(obj) = NEW y47cl_helicopter( ).
+
+  DATA(event) = NEW zcl_event_handler( ).
+  SET HANDLER event->speed_ok FOR obj.
+  SET HANDLER event->speed_up FOR obj.
+
+  obj->receive( p_name ).

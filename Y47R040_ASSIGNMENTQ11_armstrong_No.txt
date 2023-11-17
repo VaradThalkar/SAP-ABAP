@@ -1,0 +1,105 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R111_ASSIGNMENTQ11
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r111_assignmentq11.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: gv_var1 TYPE i,
+              gv_var2 TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: gv_add  RADIOBUTTON GROUP rb1,
+              gv_sub  RADIOBUTTON GROUP rb1,
+              gv_mult RADIOBUTTON GROUP rb1,
+              gv_div  RADIOBUTTON GROUP rb1.
+SELECTION-SCREEN END OF BLOCK b2.
+
+AT SELECTION-SCREEN.
+  IF gv_sub = abap_true or gv_div = abap_true..
+    IF gv_var2 > gv_var1.
+      MESSAGE 'second number should not be greater than first number' TYPE 'E' DISPLAY LIKE 'W'.
+    ENDIF.
+  ENDIF.
+
+START-OF-SELECTION.
+WRITE: / 'First number is ',gv_var1 LEFT-JUSTIFIED.
+
+WRITE: / 'Second number is ',gv_var2 LEFT-JUSTIFIED.
+  IF gv_add = abap_true.
+    PERFORM addition USING gv_var1 gv_var2.
+
+  ELSEIF gv_sub = abap_true.
+    PERFORM substraction USING gv_var1 gv_var2.
+
+  ELSEIF gv_mult = abap_true.
+    PERFORM multiplication USING gv_var1 gv_var2.
+
+  ELSEIF gv_div = abap_true.
+    PERFORM division USING gv_var1 gv_var2.
+
+  ENDIF.
+*&---------------------------------------------------------------------*
+*& Form addition
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_VAR1
+*&      --> GV_VAR2
+*&---------------------------------------------------------------------*
+FORM addition  USING    p_gv_var1
+                        p_gv_var2.
+  data: lv_result.
+  lv_result = p_gv_var1 + p_gv_var2.
+  WRITE:/ 'Addition is:',lv_result.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form substraction
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_VAR1
+*&      --> GV_VAR2
+*&---------------------------------------------------------------------*
+FORM substraction  USING    p_gv_var1
+                            p_gv_var2.
+ data: lv_result.
+  lv_result = p_gv_var1 - p_gv_var2.
+  WRITE:/ 'Substraction is:',lv_result.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form multiplication
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_VAR1
+*&      --> GV_VAR2
+*&---------------------------------------------------------------------*
+FORM multiplication  USING    p_gv_var1
+                              p_gv_var2.
+   data: lv_result.
+  lv_result = p_gv_var1 * p_gv_var2.
+  WRITE:/ 'multiplication is:',lv_result.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form division
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_VAR1
+*&      --> GV_VAR2
+*&---------------------------------------------------------------------*
+FORM division  USING    p_gv_var1
+                        p_gv_var2.
+ data: lv_result.
+  lv_result = p_gv_var1 / p_gv_var2.
+  WRITE:/ 'Division is:',lv_result.
+ENDFORM.
+
+TOP-OF-PAGE.
+WRITE: 'Arethmatic Operations'.
+
+end-of-PAGE.
+WRITE: 'End of page'.

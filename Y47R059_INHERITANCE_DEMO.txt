@@ -1,0 +1,36 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R059_INHERITANCE_DEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R059_INHERITANCE_DEMO.
+
+CLASS parent DEFINITION.
+  PUBLIC SECTION.
+  data : v_public(25) value 'this is public data'.
+  METHODS: parents.
+ENDCLASS.
+
+class child DEFINITION INHERITING FROM parent.
+  PUBLIC SECTION.
+  METHODS: child_m.
+ENDCLASS.
+
+CLASS parent IMPLEMENTATION.
+  METHOD parents.
+    WRITE /: v_public.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS child IMPLEMENTATION.
+  METHOD child_m.
+    skip.
+    WRITE :/ 'Method in child class',v_public.
+  ENDMETHOD.
+ENDclass.
+
+START-OF-SELECTION.
+data(parent) = new parent( ).
+data(child) = new child( ).
+call METHOD : parent->parents,
+child->child_m.

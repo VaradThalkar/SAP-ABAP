@@ -1,0 +1,23 @@
+
+*&---------------------------------------------------------------------*
+*& Report Y47R024_FUNCTION_TRIAL
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R024_FUNCTION_TRIAL.
+
+Data : str type c LENGTH 510.
+CALL FUNCTION 'HR_IN_CHG_INR_WRDS'
+  EXPORTING
+    amt_in_num               = 10000
+ IMPORTING
+   AMT_IN_WORDS             = str
+ EXCEPTIONS
+   DATA_TYPE_MISMATCH       = 1
+   OTHERS                   = 2
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+write str.

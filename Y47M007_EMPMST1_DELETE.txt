@@ -1,0 +1,66 @@
+*&---------------------------------------------------------------------*
+*& Modulpool Y47M006_EMPMST1_DELETE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+PROGRAM y47m006_empmst1_delete.
+TABLES y47m_empmst1.
+DATA : gt_empmst TYPE table of y47m_empmst1,
+       gs_empmst TYPE y47m_empmst1.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+  SET PF-STATUS 'Y47EMPDEL'.
+  SET TITLEBAR '100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+  IF sy-ucomm = 'B_DEL'.
+
+    IF y47m_empmst1-empno IS INITIAL.
+      MESSAGE 'Please enter Employee Number' TYPE 'E'.
+    ENDIF.
+    SELECT SINGLE empno FROM y47m_empmst1 INTO gs_empmst WHERE empno = y47m_empmst1-empno.
+    IF sy-subrc = 0.
+      DELETE FROM y47m_empmst1 WHERE empno = y47m_empmst1-empno.
+      IF sy-subrc = 0.
+        MESSAGE 'Record Deleted Successfully' TYPE 'S'.
+      ELSE.
+        MESSAGE 'Record Deletion Failed' TYPE 'E'.
+      ENDIF.
+    ELSE.
+      MESSAGE 'Record not found' TYPE 'E'.
+    ENDIF.
+  ENDIF.
+
+  IF sy-ucomm = 'B_DIS'.
+    DATA: lr_alv TYPE REF TO cl_salv_table.
+    SELECT * FROM y47m_empmst1 INTO TABLE gt_empmst ORDER BY empno.
+    TRY.
+        CALL METHOD cl_salv_table=>factory(
+          IMPORTING
+            r_salv_table = lr_alv
+          CHANGING
+            t_table      = gt_empmst ).
+      CATCH cx_salv_msg.
+    ENDTRY.
+    lr_alv->display( ).
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit0100 INPUT.
+  IF sy-ucomm = 'CANC'.
+    LEAVE PROGRAM.
+  ENDIF.
+ENDMODULE.

@@ -1,0 +1,94 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R121_ASSIGNMENTQ21
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r121_assignmentq21.
+DATA: add1  TYPE i,
+      add2  TYPE i,
+      add3  TYPE i,
+      add4  TYPE i,
+      add5  TYPE i,
+      cal   TYPE i,
+      total TYPE string.
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: rb1 RADIOBUTTON GROUP rg1,
+              rb2 RADIOBUTTON GROUP rg1,
+              rb3 RADIOBUTTON GROUP rg1.
+SELECTION-SCREEN END OF BLOCK b1.
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE TEXT-002.
+  PARAMETERS: p_chk1 AS CHECKBOX,
+              p_chk2 AS CHECKBOX,
+              p_chk3 AS CHECKBOX,
+              p_chk4 AS CHECKBOX,
+              p_chk5 AS CHECKBOX.
+SELECTION-SCREEN END OF BLOCK b2.
+
+IF rb1 = abap_true.
+  WRITE: / 'Pizza Size: Small (Rs 200)'.
+  SKIP.
+  PERFORM Added_Toppings.
+  cal = 200 + add1 + add2 + add3 + add4 + add5.
+  total = cal.
+  CONDENSE total.
+  WRITE: 'Total Cost:     Rs', total.
+ENDIF.
+IF rb2 = abap_true.
+  WRITE: / 'Pizza Size: Medium (Rs 400)'.
+  SKIP.
+  PERFORM Added_Toppings.
+  cal = 400 + add1 + add2 + add3 + add4 + add5.
+  total = cal.
+  CONDENSE total.
+  WRITE: 'Total Cost:     Rs', total.
+ENDIF.
+
+IF rb3 = abap_true.
+  WRITE: / 'Pizza Size: Large (Rs 600)'.
+  SKIP.
+  PERFORM Added_Toppings.
+  cal = 600 + add1 + add2 + add3 + add4 + add5.
+  total = cal.
+  CONDENSE total.
+  WRITE: 'Total Cost:     Rs', total.
+ENDIF.
+
+FORM Added_Toppings.
+  WRITE: / 'Added Toppings:'.
+  IF p_chk1 = abap_true.
+    WRITE: / 'Onion         ' LEFT-JUSTIFIED, '(+Rs 50)' RIGHT-JUSTIFIED.
+    add1 = 50.
+  ELSE.
+    add1 = 0.
+
+  ENDIF.
+  IF p_chk2 = abap_true.
+    WRITE: / 'Sausage       ' LEFT-JUSTIFIED, '(+Rs 50)' RIGHT-JUSTIFIED.
+    add2 = 50.
+  ELSE.
+    add2 = 0.
+
+  ENDIF.
+  IF p_chk3 = abap_true.
+    WRITE: / 'Extra Cheese  ' LEFT-JUSTIFIED, '(+Rs 50)' RIGHT-JUSTIFIED.
+    add3 = 50.
+  ELSE.
+    add3 = 0.
+
+  ENDIF.
+  IF p_chk4 = abap_true.
+    WRITE: / 'Mushroom      ' LEFT-JUSTIFIED, '(+Rs 50)' RIGHT-JUSTIFIED.
+    add4 = 50.
+  ELSE.
+    add4 = 0.
+
+  ENDIF.
+  IF p_chk5 = abap_true.
+    WRITE: / 'Pepperoni     ' LEFT-JUSTIFIED, '(+Rs 50)' RIGHT-JUSTIFIED.
+    add5 = 50.
+  ELSE.
+    add5 = 0.
+
+  ENDIF.
+  ULINE.
+ENDFORM.

@@ -1,0 +1,53 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R020_SF_EMPDET
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R020_SF_EMPDET.
+
+TABLES: y47m_empmst.
+
+data gt_empdet TYPE y47sft_emp_det.
+
+select a~EMPNO
+a~EMPNM
+a~GENDER
+a~BIRTHDT
+a~JOININGDT
+a~PHONE_NO
+a~EMAIL_ID
+a~DEPTCD
+a~WLCD
+a~DESIGNATION
+a~BANKAC
+a~BANKNM
+b~Deptnm
+  FROM y47m_empmst as a INNER JOIN y47c_deptmst as b on a~deptcd = b~deptcd into table gt_empdet.
+  CALL FUNCTION '/1BCDWB/SF00000100'
+*    EXPORTING
+*     ARCHIVE_INDEX              =
+*     ARCHIVE_INDEX_TAB          =
+*     ARCHIVE_PARAMETERS         =
+*     CONTROL_PARAMETERS         =
+*     MAIL_APPL_OBJ              =
+*     MAIL_RECIPIENT             =
+*     MAIL_SENDER                =
+*     OUTPUT_OPTIONS             =
+*     USER_SETTINGS              = 'X'
+*      gs_empdet                  =
+*   IMPORTING
+*     DOCUMENT_OUTPUT_INFO       =
+*     JOB_OUTPUT_INFO            =
+*     JOB_OUTPUT_OPTIONS         =
+    tables
+      gt_empdet                  = gt_empdet
+*   EXCEPTIONS
+*     FORMATTING_ERROR           = 1
+*     INTERNAL_ERROR             = 2
+*     SEND_ERROR                 = 3
+*     USER_CANCELED              = 4
+*     OTHERS                     = 5
+            .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.

@@ -1,0 +1,85 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R070_OOPS_ASSIGNMENT_1_L
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R070_OOPS_ASSIGNMENT_1_L.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: prb_cre RADIOBUTTON GROUP rg, "MODIF ID md1,
+              prb_mod RADIOBUTTON GROUP rg,  "MODIF ID md1,
+              prb_del RADIOBUTTON GROUP rg.
+SELECTION-SCREEN END OF BLOCK b2.
+
+DATA : lr_alv TYPE REF TO cl_salv_table.
+DATA: gt_empmst TYPE TABLE OF y47m_empmst1,
+      gs_empmst TYPE y47m_empmst1.
+
+CLASS Employee DEFINITION.
+  PUBLIC SECTION.
+    METHODS: create, modify, delete.
+ENDCLASS.
+
+
+CLASS employee IMPLEMENTATION.
+  METHOD create.
+    CALL TRANSACTION 'Y47EMPMST1C'.
+*    SELECT * FROM y47m_empmst1 INTO TABLE gt_empmst.
+*    PERFORM display.
+  ENDMETHOD.
+  METHOD modify.
+    CALL TRANSACTION 'Y47SNROEMPU'.
+*    SELECT * FROM y47m_empmst1 INTO TABLE gt_empmst.
+*    PERFORM display.
+  ENDMETHOD.
+  METHOD delete.
+*    DELETE FROM y47m_empmst1 WHERE empno = p_del.
+*    IF sy-subrc = 0.
+*      PERFORM display.
+*    ENDIF.
+    CALL TRANSACTION 'Y47EMPMST1D'.
+*    SELECT * FROM y47m_empmst1 INTO TABLE gt_empmst.
+*    PERFORM display.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+
+*data(obj) = new y47cl_employee( ).
+*
+*CALL METHOD obj->create.
+  DATA(obj) = NEW employee( ).
+
+  IF prb_cre = abap_true.
+    obj->create( ).
+  ELSEIF prb_mod = abap_true.
+    obj->modify( ).
+  ELSEIF prb_del = abap_true.
+    obj->delete( ).
+  ENDIF.
+
+END-OF-SELECTION.
+
+*ENDFORM.
+**&---------------------------------------------------------------------*
+**& Form display
+**&---------------------------------------------------------------------*
+**& text
+**&---------------------------------------------------------------------*
+**& -->  p1        text
+**& <--  p2        text
+**&---------------------------------------------------------------------*
+FORM display .
+  TRY.
+      CALL METHOD cl_salv_table=>factory(
+        IMPORTING
+          r_salv_table = lr_alv
+        CHANGING
+          t_table      = gt_empmst ).
+
+*      PERFORM enable_layout_settings.
+*      PERFORM optimize_column_width .
+    CATCH cx_salv_msg.
+  ENDTRY.
+  lr_alv->display( ).
+ENDFORM.

@@ -1,0 +1,32 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R027_STATIC_EXAMPLE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R027_STATIC_EXAMPLE.
+
+CLASS class1 DEFINITION.
+  PUBLIC SECTION.
+    CLASS-DATA : name1 type char45,
+                 data1 type i.
+    methods: meth1.
+ENDCLASS.
+
+class class1 IMPLEMENTATION.
+  Method meth1.
+    do 4 times.
+      data1 = 1 + data1.
+      WRITE: / data1,name1.
+    ENDDO.
+    skip.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+  class1=>name1 = 'abap oops'.
+  class1=>data1 = 0.
+  DATA(object1) = new class1( ).
+  DATA(object2) = new class1( ).
+
+  call METHOD: object1->meth1,
+               object2->meth1.

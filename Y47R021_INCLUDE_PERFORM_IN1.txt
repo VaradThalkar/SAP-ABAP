@@ -1,0 +1,50 @@
+*&---------------------------------------------------------------------*
+*& Include Y47R010_INCLUDE_PERFORM_IN1
+*&---------------------------------------------------------------------*
+
+DATA : gv_var1 TYPE i VALUE 5,
+      gv_var2 TYPE i VALUE 10,
+      gv_result TYPE i,
+      gv_changing TYPE i.
+WRITE: /'Inside Include program'.
+ULINE.
+*------Perform-----
+PERFORM Arethmetic.
+
+FORM Arethmetic .
+    WRITE / 'PERFORM'.
+    gv_result = gv_var1 + gv_var2.
+    WRITE: / gv_var1 CENTERED, '+',gv_var2 CENTERED, '=' ,gv_result CENTERED.
+    PERFORM substraction using gv_var1 gv_var2 .
+    PERFORM multiplication CHANGING gv_changing.
+    WRITE: / gv_var1 CENTERED, '*', gv_var2 CENTERED,'=', gv_changing CENTERED.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form substraction
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM substraction using uv_a type i
+                        uv_b type i.
+  WRITE: / 'PERFORM USING'.
+    DATA lv_sub TYPE i.
+    lv_sub = uv_a - uv_b.
+    WRITE: / uv_a CENTERED, '-',uv_b CENTERED, '=' ,lv_sub CENTERED.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form multiplication
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM multiplication CHANGING uv_changing.
+  WRITE: / 'PERFORM CHANGING'.
+  DATA lv_mult type i.
+  lv_mult = gv_var1 * gv_var2.
+  uv_changing = lv_mult.
+ENDFORM.

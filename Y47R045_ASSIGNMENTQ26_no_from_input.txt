@@ -1,0 +1,52 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R126_ASSIGNMENTQ26
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r126_assignmentq26.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_from TYPE i,
+              p_to   TYPE i,
+              p_char TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+
+DATA: lv_from TYPE i,
+      lv_to   TYPE i,
+      number  TYPE i,
+      numbers TYPE TABLE OF i,
+      digit   TYPE i,
+      lv_char TYPE i,
+      temp    TYPE i.
+
+START-OF-SELECTION.
+
+  lv_from = p_from.
+  lv_to = p_to.
+  lv_char = p_char.
+  temp = lv_from.
+
+  WHILE lv_from <= lv_to.
+
+    WHILE temp NE 0.
+      digit = temp MOD 10.
+      IF digit = lv_char.
+        number = lv_from.
+        APPEND number TO numbers.
+        CLEAR number.
+        EXIT.
+      ENDIF.
+      temp = temp DIV 10.
+    ENDWHILE.
+    lv_from = lv_from + 1.
+    temp = lv_from.
+  ENDWHILE.
+  WRITE: / 'From Number:', p_from, / 'To Number:', p_to, / 'Check Number:', p_char.
+  SKIP.
+  ULINE.
+  WRITE: / 'Output:'.
+  LOOP AT numbers INTO number.
+
+    WRITE: / number.
+
+  ENDLOOP.

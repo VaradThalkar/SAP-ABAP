@@ -1,0 +1,39 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R106_ASSIGNMENTQ6
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R106_ASSIGNMENTQ6.
+
+PARAMETERS: gv_start TYPE i,
+            gv_endNo TYPE i.
+
+DATA: lv_prevNo TYPE i,
+      lv_currNo TYPE i,
+      lv_i TYPE i,
+      lv_result TYPE i.
+lv_i = 0.
+
+WRITE: / 'Starting no:',gv_start.
+WRITE: / 'Ending no:',gv_endNo.
+skip.
+IF gv_start = 0 or gv_start = 1.
+  lv_prevNo = gv_start.
+  lv_currNo = 1.
+  WRITE: / lv_prevNo.
+  WRITE: / lv_currNo.
+ELSe.
+lv_prevNo = gv_start.
+lv_currNo = gv_start.
+  WRITE: / lv_currNo.
+ENDIF.
+
+WHILE lv_i < gv_endNo.
+
+  lv_result = lv_prevNo + lv_currNo.
+  WRITE: / lv_result.
+  lv_prevno = lv_currno.
+  lv_currno = lv_result.
+  lv_i += 1.
+
+ENDWHILE.

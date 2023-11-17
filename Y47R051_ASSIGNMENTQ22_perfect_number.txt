@@ -1,0 +1,24 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R122_ASSIGNMENTQ22
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R122_ASSIGNMENTQ22.
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+  PARAMETERS:p_var TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+DATA: result TYPE i.
+
+START-OF-SELECTION.
+  WHILE sy-index <= p_var / 2.
+    IF p_var MOD sy-index = 0.
+      result = result + sy-index.
+    ENDIF.
+  ENDWHILE.
+WRITE: / 'Number To Check:', p_var.
+skip.
+  IF result = p_var.
+    WRITE: / p_var , 'is a Perfect Number'.
+  ELSE .
+    WRITE: / p_var , 'is not a Perfect Number'.
+  ENDIF.

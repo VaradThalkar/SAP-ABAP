@@ -1,0 +1,17 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R011_MESSAGES
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R011_MESSAGES.
+PARAMETERS: gv_var1 TYPE i.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+IF gv_var1 IS INITIAL.
+  MESSAGE 'This is error Message for null value ' TYPE 'E'.
+ELSEIF gv_var1 = 1.
+  MESSAGE 'This is a warning message for value = 1' TYPE 'I' DISPLAY LIKE 'W'.
+ELSEIF gv_var1 < 0.
+  MESSAGE 'This is information message for value being negative' TYPE 'I'.
+ENDIF.
+SELECTION-SCREEN END OF BLOCK b1.

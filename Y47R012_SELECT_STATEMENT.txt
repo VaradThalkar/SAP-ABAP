@@ -1,0 +1,71 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R011_SELECT_STATEMENT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r012_select_statement.
+
+TABLES y47m_empmst.
+
+TYPES: BEGIN OF ty_empmst,
+         empno  TYPE y47m_empmst-empno,
+         empnm  TYPE y47m_empmst-empnm,
+         gender TYPE y47m_empmst-gender,
+         deptcd TYPE y47m_empmst-deptcd,
+       END OF ty_empmst.
+
+DATA: gs_empmst TYPE ty_empmst,
+      gt_empmst TYPE TABLE OF ty_empmst.
+
+*select statement.
+WRITE: 'Select statement' COLOR 1.
+SELECT empno empnm gender deptcd FROM y47m_empmst INTO TABLE gt_empmst.
+IF sy-subrc = 0.
+  LOOP AT gt_empmst INTO gs_empmst.
+    AT FIRST.
+      WRITE: / 'emp no', 10 'emp name', 20 'gender', 30 'deptcd'.
+      ULINE.
+    ENDAT.
+    WRITE: / gs_empmst-empno, 10 gs_empmst-empnm, 20 gs_empmst-gender, 30 gs_empmst-deptcd.
+  ENDLOOP.
+ENDIF.
+
+* select  with where
+uline.
+WRITE:/ 'Select statement with where' COLOR 1.
+SELECT empno empnm gender deptcd FROM y47m_empmst INTO TABLE gt_empmst WHERE empno = 1001.
+IF sy-subrc = 0.
+  LOOP AT gt_empmst INTO gs_empmst.
+    AT FIRST.
+      WRITE: / 'emp no', 10 'emp name', 20 'gender', 30 'deptcd'.
+      ULINE.
+    ENDAT.
+    WRITE: / gs_empmst-empno, 10 gs_empmst-empnm, 20 gs_empmst-gender, 30 gs_empmst-deptcd.
+  ENDLOOP.
+ENDIF.
+
+* select single with where
+uline.
+WRITE:/ 'Select single statement with where' COLOR 1.
+SELECT SINGLE empno empnm gender deptcd FROM y47m_empmst INTO gs_empmst WHERE empno = 1001.
+IF sy-subrc = 0.
+    WRITE: / 'emp no', 10 'emp name', 20 'gender', 30 'deptcd'.
+    ULINE.
+    WRITE: / gs_empmst-empno, 10 gs_empmst-empnm, 20 gs_empmst-gender, 30 gs_empmst-deptcd.
+ELSe.
+  WRITE: / 'error finding empno'.
+ENDIF.
+
+* select  with orderby
+uline.
+WRITE:/ 'Select statement with order by' COLOR 1.
+SELECT empno empnm gender deptcd FROM y47m_empmst INTO TABLE gt_empmst ORDER BY empno .
+IF sy-subrc = 0.
+  LOOP AT gt_empmst INTO gs_empmst.
+    AT FIRST.
+      WRITE: / 'emp no', 10 'emp name', 20 'gender', 30 'deptcd'.
+      ULINE.
+    ENDAT.
+    WRITE: / gs_empmst-empno, 10 gs_empmst-empnm, 20 gs_empmst-gender, 30 gs_empmst-deptcd.
+  ENDLOOP.
+ENDIF.

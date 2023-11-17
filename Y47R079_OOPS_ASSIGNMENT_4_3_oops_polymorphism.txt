@@ -1,0 +1,95 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R079_OOPS_ASSIGNMENT_4_3
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R079_OOPS_ASSIGNMENT_4_3.
+
+
+
+CLASS Shape DEFINITION ABSTRACT.
+  PUBLIC SECTION.
+    DATA: name  TYPE string,
+          color TYPE string.
+    METHODS:
+      constructor IMPORTING im_name TYPE string im_color TYPE string,
+      get_area  ABSTRACT.
+ENDCLASS.
+
+CLASS Shape IMPLEMENTATION.
+  METHOD constructor.
+    name = im_name.
+    color = im_color.
+    WRITE : 'A ', im_name, ' with color ', im_color.
+    SKIP.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS Circle DEFINITION INHERITING FROM Shape.
+  PUBLIC SECTION.
+    DATA: radius TYPE i.
+    METHODS:
+      constructor IMPORTING im_name TYPE string im_color TYPE string im_radius TYPE i,
+      get_area REDEFINITION.
+ENDCLASS.
+
+CLASS Circle IMPLEMENTATION.
+  METHOD constructor.
+    super->constructor( im_name = im_name im_color = im_color ).
+    radius = im_radius.
+  ENDMETHOD.
+
+  METHOD get_area.
+    DATA: area TYPE f.
+    area = 3 * radius * radius.
+    WRITE: / ' Area of the Circle: ', area.
+  ENDMETHOD.
+ENDCLASS.
+
+
+CLASS Rectangle DEFINITION INHERITING FROM Shape.
+  PUBLIC SECTION.
+    DATA: length TYPE i,
+          width  TYPE i.
+    METHODS:
+      constructor IMPORTING im_name TYPE string im_color TYPE string im_length TYPE i im_width TYPE i,
+      get_area REDEFINITION.
+ENDCLASS.
+
+CLASS Rectangle IMPLEMENTATION.
+  METHOD constructor.
+    super->constructor( im_name = im_name  im_color = im_color ).
+    length = im_length.
+    width = im_width.
+  ENDMETHOD.
+  METHOD get_area.
+    DATA: area TYPE i.
+    area = length * width.
+    WRITE: / ' Area of the Rectangle: ', area.
+  ENDMETHOD.
+ENDCLASS.
+
+
+START-OF-SELECTION.
+  DATA: shapes TYPE TABLE OF REF TO Shape,
+        shape  TYPE REF TO Shape.
+  CREATE OBJECT shape TYPE Circle
+    EXPORTING
+      im_name   = 'Circle'
+      im_color  = 'Red'
+      im_radius = 5.
+  APPEND shape TO shapes.
+  CREATE OBJECT shape TYPE Rectangle
+    EXPORTING
+      im_name   = 'Rectangle'
+      im_color  = 'Blue'
+      im_length = 4
+      im_width  = 6.
+  APPEND shape TO shapes.
+  LOOP AT shapes INTO shape.
+    WRITE: / 'Shape Name:', shape->name,
+            / 'Shape Color:', shape->color.
+    CALL METHOD shape->get_area( ).
+    SKIP.
+
+  ENDLOOP.

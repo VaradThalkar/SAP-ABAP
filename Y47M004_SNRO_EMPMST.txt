@@ -1,0 +1,80 @@
+*&---------------------------------------------------------------------*
+*& Modulpool Y47M004_SNRO_EMPMST
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+PROGRAM Y47M004_SNRO_EMPMST.
+
+TABLES y47m_empmst1.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+ SET PF-STATUS 'EMPMST'.
+ SET TITLEBAR '100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+  CALL FUNCTION 'NUMBER_GET_NEXT'
+    EXPORTING
+      nr_range_nr                   = '01'
+      object                        = 'Y47EMPNOSN'
+*     QUANTITY                      = '1'
+*     SUBOBJECT                     = ' '
+*     TOYEAR                        = '0000'
+*     IGNORE_BUFFER                 = ' '
+   IMPORTING
+     NUMBER                        = y47m_empmst1-empno
+*     QUANTITY                      =
+*     RETURNCODE                    =
+   EXCEPTIONS
+     INTERVAL_NOT_FOUND            = 1
+     NUMBER_RANGE_NOT_INTERN       = 2
+     OBJECT_NOT_FOUND              = 3
+     QUANTITY_IS_0                 = 4
+     QUANTITY_IS_NOT_1             = 5
+     INTERVAL_OVERFLOW             = 6
+     BUFFER_OVERFLOW               = 7
+     OTHERS                        = 8
+            .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+  IF sy-ucomm = 'SAVE'.
+    PERFORM Save_Data.
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit_0100 INPUT.
+  IF sy-ucomm = 'BACK' or sy-ucomm = 'CANC'.
+    LEAVE PROGRAM.
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form Save_Data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM Save_Data .
+  INSERT y47m_empmst1 from y47m_empmst1.
+  IF sy-subrc = 0.
+    COMMIT WORK.
+  else.
+    ROLLBACK WORK.
+    MESSAGE 'Error Entering Data' type 'E'.
+  ENDIF.
+ENDFORM.

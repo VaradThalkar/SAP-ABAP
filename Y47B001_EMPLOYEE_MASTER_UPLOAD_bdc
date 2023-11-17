@@ -1,0 +1,300 @@
+report Y47B001_EMPLOYEE_MASTER_UPLOAD
+       no standard page heading line-size 255.
+
+* Include bdcrecx1_s:
+* The call transaction using is called WITH AUTHORITY-CHECK!
+* If you have own auth.-checks you can use include bdcrecx1 instead.
+include bdcrecx1_s.
+
+parameters: dataset(132) lower case.
+***    DO NOT CHANGE - the generated data section - DO NOT CHANGE    ***
+*
+*   If it is nessesary to change the data section use the rules:
+*   1.) Each definition of a field exists of two lines
+*   2.) The first line shows exactly the comment
+*       '* data element: ' followed with the data element
+*       which describes the field.
+*       If you don't have a data element use the
+*       comment without a data element name
+*   3.) The second line shows the fieldname of the
+*       structure, the fieldname must consist of
+*       a fieldname and optional the character '_' and
+*       three numbers and the field length in brackets
+*   4.) Each field must be type C.
+*
+*** Generated data section with specific formatting - DO NOT CHANGE  ***
+TYPES: begin of ty_tab,
+        EMPNO TYPE y47m_empmst-empno,
+        EMPNM type y47m_empmst-empnm,
+        GENDER type y47m_empmst-gender,
+        DESIGNATION type y47m_empmst-designation,
+        BIRTHDT type y47m_empmst-birthdt,
+        JOININGDT type y47m_empmst-joiningdt,
+        PHONE_NO type y47m_empmst-phone_no,
+        EMAIL_ID type y47m_empmst-email_id,
+        DEPTCD type y47m_empmst-deptcd,
+        WLCD type y47m_empmst-wlcd,
+        BANKAC type y47m_empmst-bankac,
+        BANKNM type y47m_empmst-banknm,
+      end of ty_tab.
+
+DATA: gt_tab type table of ty_tab,
+      gs_tab type ty_tab.
+DATA : gv_no_of_errors TYPE i.
+SELECTION-SCREEN BEGIN OF block mblkx1 with FRAME TITLE text-004.
+  PARAMETERS: p_filenm LIKE rlgrap-filename DEFAULT 'C:\DATA\empmst.TXT'.
+SELECTION-SCREEN end of BLOCK mblkx1.
+*** End generated data section ***
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_filenm.
+
+  DATA: lt_filetab TYPE filetable,
+        lt_rc      TYPE i.
+
+  CALL METHOD cl_gui_frontend_services=>file_open_dialog
+    CHANGING
+      file_table = lt_filetab
+      rc         = lt_rc
+    EXCEPTIONS
+      OTHERS     = 01.
+
+  CHECK lt_rc EQ 1.
+  READ TABLE lt_filetab INDEX 1 INTO p_filenm.
+
+
+start-of-selection.
+PERFORM upload_data.
+PERFORM check_data.
+end-of-SELECTION.
+IF gv_no_of_errors = 0.
+    PERFORM run_bdc.
+  ELSE.
+    WRITE :/01 'No of errors : ',gv_no_of_errors,'Session not created'.
+  ENDIF.
+
+
+
+FORM run_bdc.
+
+data : lv_cdate type char10.
+
+  PERFORM open_group.
+
+  LOOP AT gt_tab INTO gs_tab.
+
+    PERFORM bdc_dynpro      USING 'Y47M001_EMPMST' '0100'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=ENTR'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'Y47M_EMPMST-EMPNO'.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-EMPNO' gs_tab-empno.
+
+
+    PERFORM bdc_dynpro      USING 'Y47M001_EMPMST' '0200'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=SAVE'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'Y47M_EMPMST-BANKNM'.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-GENDER' gs_tab-gender.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-EMPNM' gs_tab-empnm.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-DESIGNATION' gs_tab-designation.
+
+    write gs_tab-birthdt to lv_cdate.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-BIRTHDT' lv_cdate.
+
+    write gs_tab-joiningdt to lv_cdate.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-JOININGDT' lv_cdate.
+
+    PERFORM bdc_field       USING 'Y47M_EMPMST-PHONE_NO' gs_tab-phone_no.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-EMAIL_ID' gs_tab-email_id.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-DEPTCD' gs_tab-deptcd.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-WLCD' gs_tab-wlcd.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-BANKAC' gs_tab-bankac.
+    PERFORM bdc_field       USING 'Y47M_EMPMST-BANKNM' gs_tab-banknm.
+
+    PERFORM bdc_transaction USING 'Y47EM01'.
+
+    refresh bdcdata.
+  ENDLOOP.
+
+  PERFORM close_group.
+
+ENDFORM.
+*
+*perform open_dataset using dataset.
+*perform open_group.
+*
+*do.
+*
+*read dataset dataset into record.
+*if sy-subrc <> 0. exit. endif.
+*
+*perform bdc_dynpro      using 'Y47M001_EMPMST' '0100'.
+*perform bdc_field       using 'BDC_OKCODE'
+*                              '=ENTR'.
+*perform bdc_field       using 'BDC_CURSOR'
+*                              'Y47M_EMPMST-EMPNO'.
+*perform bdc_field       using 'Y47M_EMPMST-EMPNO'
+*                              record-EMPNO_001.
+*perform bdc_dynpro      using 'Y47M001_EMPMST' '0200'.
+*perform bdc_field       using 'BDC_OKCODE'
+*                              '=ENTR'.
+*perform bdc_field       using 'BDC_CURSOR'
+*                              'Y47M_EMPMST-DEPTCD'.
+*perform bdc_field       using 'Y47M_EMPMST-EMPNM'
+*                              record-EMPNM_002.
+*perform bdc_field       using 'Y47M_EMPMST-GENDER'
+*                              record-GENDER_003.
+*perform bdc_field       using 'Y47M_EMPMST-DESIGNATION'
+*                              record-DESIGNATION_004.
+*perform bdc_field       using 'Y47M_EMPMST-BIRTHDT'
+*                              record-BIRTHDT_005.
+*perform bdc_field       using 'Y47M_EMPMST-JOININGDT'
+*                              record-JOININGDT_006.
+*perform bdc_field       using 'Y47M_EMPMST-PHONE_NO'
+*                              record-PHONE_NO_007.
+*perform bdc_field       using 'Y47M_EMPMST-EMAIL_ID'
+*                              record-EMAIL_ID_008.
+*perform bdc_field       using 'Y47M_EMPMST-DEPTCD'
+*                              record-DEPTCD_009.
+*perform bdc_field       using 'Y47M_EMPMST-WLCD'
+*                              record-WLCD_010.
+*perform bdc_dynpro      using 'Y47M001_EMPMST' '0200'.
+*perform bdc_field       using 'BDC_OKCODE'
+*                              '=ENTR'.
+*perform bdc_field       using 'BDC_CURSOR'
+*                              'Y47M_EMPMST-BANKNM'.
+*perform bdc_field       using 'Y47M_EMPMST-EMPNM'
+*                              record-EMPNM_011.
+*perform bdc_field       using 'Y47M_EMPMST-GENDER'
+*                              record-GENDER_012.
+*perform bdc_field       using 'Y47M_EMPMST-DESIGNATION'
+*                              record-DESIGNATION_013.
+*perform bdc_field       using 'Y47M_EMPMST-BIRTHDT'
+*                              record-BIRTHDT_014.
+*perform bdc_field       using 'Y47M_EMPMST-JOININGDT'
+*                              record-JOININGDT_015.
+*perform bdc_field       using 'Y47M_EMPMST-PHONE_NO'
+*                              record-PHONE_NO_016.
+*perform bdc_field       using 'Y47M_EMPMST-EMAIL_ID'
+*                              record-EMAIL_ID_017.
+*perform bdc_field       using 'Y47M_EMPMST-DEPTCD'
+*                              record-DEPTCD_018.
+*perform bdc_field       using 'Y47M_EMPMST-WLCD'
+*                              record-WLCD_019.
+*perform bdc_field       using 'Y47M_EMPMST-BANKAC'
+*                              record-BANKAC_020.
+*perform bdc_field       using 'Y47M_EMPMST-BANKNM'
+*                              record-BANKNM_021.
+*perform bdc_dynpro      using 'Y47M001_EMPMST' '0200'.
+*perform bdc_field       using 'BDC_OKCODE'
+*                              '=SAVE'.
+*perform bdc_field       using 'BDC_CURSOR'
+*                              'Y47M_EMPMST-EMPNM'.
+*perform bdc_field       using 'Y47M_EMPMST-EMPNM'
+*                              record-EMPNM_022.
+*perform bdc_field       using 'Y47M_EMPMST-GENDER'
+*                              record-GENDER_023.
+*perform bdc_field       using 'Y47M_EMPMST-DESIGNATION'
+*                              record-DESIGNATION_024.
+*perform bdc_field       using 'Y47M_EMPMST-BIRTHDT'
+*                              record-BIRTHDT_025.
+*perform bdc_field       using 'Y47M_EMPMST-JOININGDT'
+*                              record-JOININGDT_026.
+*perform bdc_field       using 'Y47M_EMPMST-PHONE_NO'
+*                              record-PHONE_NO_027.
+*perform bdc_field       using 'Y47M_EMPMST-EMAIL_ID'
+*                              record-EMAIL_ID_028.
+*perform bdc_field       using 'Y47M_EMPMST-DEPTCD'
+*                              record-DEPTCD_029.
+*perform bdc_field       using 'Y47M_EMPMST-WLCD'
+*                              record-WLCD_030.
+*perform bdc_field       using 'Y47M_EMPMST-BANKAC'
+*                              record-BANKAC_031.
+*perform bdc_field       using 'Y47M_EMPMST-BANKNM'
+*                              record-BANKNM_032.
+*perform bdc_transaction using 'Y47EM01'.
+*
+*enddo.
+*
+*perform close_group.
+*perform close_dataset using dataset.
+*&---------------------------------------------------------------------*
+*& Form upload_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM upload_data .
+  data: lv_filename type string.
+  lv_filename = p_filenm.
+CALL FUNCTION 'GUI_UPLOAD'
+  EXPORTING
+    filename                      = lv_filename
+   FILETYPE                      = 'DAT'
+*   HAS_FIELD_SEPARATOR           = ' '
+*   HEADER_LENGTH                 = 0
+*   READ_BY_LINE                  = 'X'
+*   DAT_MODE                      = ' '
+*   CODEPAGE                      = ' '
+*   IGNORE_CERR                   = ABAP_TRUE
+*   REPLACEMENT                   = '#'
+*   CHECK_BOM                     = ' '
+*   VIRUS_SCAN_PROFILE            =
+*   NO_AUTH_CHECK                 = ' '
+* IMPORTING
+*   FILELENGTH                    =
+*   HEADER                        =
+  tables
+    data_tab                      = gt_tab
+* CHANGING
+*   ISSCANPERFORMED               = ' '
+ EXCEPTIONS
+   FILE_OPEN_ERROR               = 1
+   FILE_READ_ERROR               = 2
+   NO_BATCH                      = 3
+   GUI_REFUSE_FILETRANSFER       = 4
+   INVALID_TYPE                  = 5
+   NO_AUTHORITY                  = 6
+   UNKNOWN_ERROR                 = 7
+   BAD_DATA_FORMAT               = 8
+   HEADER_NOT_ALLOWED            = 9
+   SEPARATOR_NOT_ALLOWED         = 10
+   HEADER_TOO_LONG               = 11
+   UNKNOWN_DP_ERROR              = 12
+   ACCESS_DENIED                 = 13
+   DP_OUT_OF_MEMORY              = 14
+   DISK_FULL                     = 15
+   DP_TIMEOUT                    = 16
+   OTHERS                        = 17
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form check_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM check_data .
+
+  DATA : ls_empmst TYPE y47m_empmst.
+  LOOP AT gt_tab INTO gs_tab.
+
+    SELECT SINGLE * INTO ls_empmst
+      FROM y47m_empmst
+      WHERE empno = gs_tab-empno.
+    IF sy-subrc = 0.
+      WRITE : /01 gs_tab-empno,gs_tab-empnm,'Employee No Already Exist'.
+      ADD 1 TO gv_no_of_errors.
+    ENDIF.
+  ENDLOOP.
+
+ENDFORM.

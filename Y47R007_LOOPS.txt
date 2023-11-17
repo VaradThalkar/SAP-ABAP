@@ -1,0 +1,49 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R007_LOOPS
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R007_LOOPS.
+TOP-OF-PAGE.
+WRITE 'Loops' color 7.
+uline.
+
+PARAMETERS: lv_num1 TYPE i,
+            lv_num2 TYPE i,
+            lv_num3 TYPE i.
+
+START-OF-SELECTION.
+*---- do loop
+WRITE: / 'Do loop' COLOR 1.
+WRITE: / 'Table of given number :',lv_num1.
+DATA: lv_i TYPE i VALUE 1.
+DATA: lv_out TYPE i VALUE 0.
+DO 10 TIMES.
+  lv_out = lv_num1 * lv_i.
+  WRITE: / lv_num1,'*',lv_i,'=',lv_out.
+  lv_i = lv_i + 1.
+ENDDO.
+
+uline.
+*---- While loop.
+WRITE: / 'While loop' COLOR 1.
+WRITE: / 'Printing numbers until given number :',lv_num2.
+DATA: lv_number TYPE i VALUE 0.
+WHILE lv_number <= lv_num2.
+  WRITE: / lv_number.
+  lv_number = lv_number + 1.
+ENDWHILE.
+
+ULINE.
+*---- Using Exit Statement
+WRITE: / 'using Exit statement' COLOR 1.
+WRITE: / 'Printing numbers from 1 to 100 and stopping at given number',lv_num3.
+skip.
+DATA: lv_number1 TYPE i VALUE 0.
+WHILE lv_number1 <= 100.
+  WRITE: lv_number1.
+  IF lv_number1 = lv_num3.
+    EXIT.
+  ENDIF.
+  lv_number1 = lv_number1 + 1.
+ENDWHILE.

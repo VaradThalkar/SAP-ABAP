@@ -1,0 +1,56 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R120_ASSIGNMENTQ20
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R120_ASSIGNMENTQ20.
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS : p_var TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+
+DATA: primes TYPE TABLE OF i,
+      prime  TYPE i.
+
+DATA: count TYPE i VALUE 1.
+DATA: start TYPE i VALUE 2.
+DATA: divisor TYPE i.
+
+START-OF-SELECTION.
+
+
+  WHILE count <= p_var.
+
+    WHILE sy-index <= start.
+      IF start MOD sy-index = 0.
+        divisor = divisor + 1.
+      ENDIF.
+    ENDWHILE.
+
+    IF divisor <= 2.
+
+      prime = start.
+      APPEND prime TO primes.
+      CLEAR prime.
+      count = count + 1.
+    ENDIF.
+    divisor = 0.
+    start = start + 1.
+
+
+
+  ENDWHILE.
+
+write: / 'first ',p_var,'Prime Numbers are:'.
+  LOOP AT primes INTO prime .
+    WRITE: prime.
+  ENDLOOP.
+  SKIP.
+
+  write: / 'Alternate Prime Numbers:'.
+  LOOP AT primes INTO prime.
+
+    IF sy-tabix MOD 2 NE 0.
+      WRITE: prime.
+    ENDIF.
+
+  ENDLOOP.

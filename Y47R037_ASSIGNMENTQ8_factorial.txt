@@ -1,0 +1,21 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R108_ASSIGNMENTQ8
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R108_ASSIGNMENTQ8.
+
+PARAMETERS gv_var1 TYPE i.
+
+DATA: lv_iter TYPE i,
+      lv_var1 type i.
+lv_iter = 1.
+lv_var1 = gv_var1.
+WRITE: / 'Input number is:', lv_var1 LEFT-JUSTIFIED.
+
+WHILE lv_var1 >= 1.
+  lv_iter = lv_iter * lv_var1.
+  lv_var1 -= 1.
+ENDWHILE.
+
+WRITE: / 'Factorial :',lv_iter LEFT-JUSTIFIED.

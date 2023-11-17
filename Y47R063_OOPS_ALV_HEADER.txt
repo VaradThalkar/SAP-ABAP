@@ -1,0 +1,107 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R063_OOPS_ALV_HEADER
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r063_oops_alv_header.
+
+TABLES : ekpo, ekko.
+
+SELECT-OPTIONS: s_ebeln FOR ekko-ebeln.
+
+TYPES: BEGIN OF ty_ekpo,
+         ebeln TYPE ekpo-ebeln,
+         ebelp TYPE ekpo-ebelp,
+         matnr TYPE ekpo-matnr,
+         bukrs TYPE ekpo-bukrs,
+         menge TYPE ekpo-menge,
+       END OF ty_ekpo.
+
+DATA: it_ekpo TYPE TABLE OF ty_ekpo,
+      wa_ekpo TYPE ty_ekpo.
+
+DATA : lv_cnt TYPE i.
+
+DATA : lr_header TYPE REF TO cl_salv_form_element.
+
+DATA : lr_grid_layout TYPE REF TO cl_salv_form_layout_grid,
+       lr_label       TYPE REF TO cl_salv_form_label,
+       lr_text        TYPE REF TO cl_salv_form_text,
+       l_text         TYPE string.
+
+START-OF-SELECTION.
+
+  SELECT ebeln ebelp matnr bukrs menge
+    FROM ekpo
+    INTO TABLE it_ekpo
+    WHERE ebeln IN s_ebeln.
+
+  DATA: lr_alv TYPE REF TO cl_salv_table.
+
+  TRY.
+*    TRY.
+      CALL METHOD cl_salv_table=>factory
+*      EXPORTING
+*        list_display   = IF_SALV_C_BOOL_SAP=>FALSE
+*        r_container    =
+*        container_name =
+        IMPORTING
+          r_salv_table = lr_alv
+        CHANGING
+          t_table      = it_ekpo.
+      .
+*      CATCH cx_salv_msg.
+  ENDTRY.
+
+  DATA: lr_sort TYPE REF TO cl_salv_sorts.
+
+  CALL METHOD lr_alv->get_sorts
+    RECEIVING
+      value = lr_sort.
+
+  DATA : lr_sort_column TYPE REF TO cl_salv_sort.
+  CALL METHOD lr_sort->add_sort
+    EXPORTING
+      columnname = 'EBELN'
+    RECEIVING
+      value      = lr_sort_column.
+
+* subtotal
+  CALL METHOD lr_sort_column->set_subtotal
+    EXPORTING
+      value = if_salv_c_bool_sap=>true.
+
+  CLEAR lr_text.
+
+  lv_cnt = lines( it_ekpo ).
+  CREATE OBJECT lr_grid_layout.
+  l_text = 'PO report'.
+
+  lr_label =  lr_grid_layout->create_label( row = 2 column = 1 text = 'No of records' tooltip = ' no of records selected').
+  lr_text = lr_grid_layout->create_text( row = 2 column = 2 text = lv_cnt ).
+
+  lr_label->set_label_for( lr_text ).
+  lr_label = lr_grid_layout->create_label( row = 3 column = 1 text = 'date' tooltip = 'date').
+  l_text = sy-datum.
+
+  lr_text = lr_grid_layout->create_text( row = 3 column = 2 text = l_text tooltip = l_text ).
+
+  lr_header = lr_grid_layout.
+
+  CALL METHOD lr_alv->set_top_of_list
+    EXPORTING
+      value = lr_header.
+
+* end of list
+
+  DATA : lr_footer TYPE REF TO cl_salv_form_header_info.
+  CLEAR l_text.
+
+  l_text = 'end of list as footer'.
+  CREATE OBJECT lr_footer
+    EXPORTING
+      text    = l_text
+      tooltip = l_text.
+
+  lr_alv->set_end_of_list( lr_footer ).
+  lr_alv->display( ).

@@ -1,0 +1,117 @@
+*&---------------------------------------------------------------------*
+*& Modulpool Y47M006_EMPMST1_CREATE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+PROGRAM y47m006_empmst1_create.
+TABLES: y47m_empmst1.
+data: gt_empmst type table of y47m_empmst1.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+  SET PF-STATUS 'EMPCREATE'.
+  SET TITLEBAR '0100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+  IF sy-ucomm = 'SAVE' OR sy-ucomm = 'B_CR'.
+    PERFORM check_data.
+    PERFORM save_data.
+  ENDIF.
+
+  IF sy-ucomm = 'B_DIS'.
+    DATA: lr_alv TYPE REF TO cl_salv_table.
+    SELECT * FROM y47m_empmst1 INTO TABLE gt_empmst ORDER BY empno.
+    TRY.
+        CALL METHOD cl_salv_table=>factory(
+          IMPORTING
+            r_salv_table = lr_alv
+          CHANGING
+            t_table      = gt_empmst ).
+      CATCH cx_salv_msg.
+    ENDTRY.
+    lr_alv->display( ).
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form check_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM check_data .
+  DATA: lv_agediff     TYPE i,
+        lv_invalidchar TYPE string.
+
+  IF y47m_empmst1-empno IS INITIAL OR
+    y47m_empmst1-empnm IS INITIAL OR
+    y47m_empmst1-gender IS INITIAL OR
+    y47m_empmst1-joiningdt IS INITIAL OR
+    y47m_empmst1-birthdt IS INITIAL.
+    MESSAGE 'Make entry in all fields' TYPE 'E'.
+  ENDIF.
+  lv_invalidchar = '0123456789!@#$%^&*()-=+_`~[]{}\|;:"<>,./?'.
+  IF y47m_empmst1-empnm CA lv_invalidchar AND y47m_empmst1-empnm IS NOT INITIAL.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '010'.
+  ENDIF.
+  IF y47m_empmst1-birthdt >= sy-datum AND y47m_empmst1-birthdt IS NOT INITIAL.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '008'.
+  ELSE.
+    CALL FUNCTION 'COMPUTE_YEARS_DIFFERENCE_DATES'
+      EXPORTING
+        first_date                  = y47m_empmst1-birthdt
+        second_date                 = y47m_empmst1-joiningdt
+      IMPORTING
+        years_between_dates         = lv_agediff
+      EXCEPTIONS
+        sequence_of_dates_not_valid = 1
+        OTHERS                      = 2.
+    IF sy-subrc <> 0.
+* Implement suitable error handling here
+    ENDIF.
+    IF lv_agediff < 18 AND y47m_empmst1-birthdt IS NOT INITIAL AND y47m_empmst1-joiningdt IS NOT INITIAL.
+      MESSAGE ID 'Y47' TYPE 'E' NUMBER '009'.
+    ENDIF.
+  ENDIF.
+
+  IF y47m_empmst1-birthdt >= y47m_empmst1-joiningdt AND y47m_empmst1-birthdt IS NOT INITIAL.
+    IF y47m_empmst1-joiningdt IS NOT INITIAL.
+      MESSAGE ID 'Y47' TYPE 'E' NUMBER '025'.
+    ENDIF.
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form save_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM save_data .
+  INSERT y47m_empmst1 FROM y47m_empmst1.
+  IF sy-subrc = 0.
+    MESSAGE 'Record Inserted Successfully' TYPE 'S'.
+  ELSE.
+    MESSAGE 'Record Insertion Failed' TYPE 'E'.
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit0100 INPUT.
+  IF sy-ucomm = 'CANC'.
+    LEAVE PROGRAM.
+  ENDIF.
+ENDMODULE.

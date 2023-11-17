@@ -1,0 +1,32 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R013_SELECT_OPTIONS
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R013_SELECT_OPTIONS.
+
+TABLES y47m_empmst.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 with FRAME.
+select-OPTIONS: so_empno for y47m_empmst-empno.
+SELECTION-SCREEN END OF BLOCK b1.
+
+DATA: gs_empmst TYPE y47m_empmst,
+      gt_empmst TYPE TABLE of y47m_empmst.
+START-OF-SELECTION.
+WRITE : / 'Select option example' color 1.
+uline.
+select *
+        from y47m_empmst
+        into TABLE gt_empmst
+        WHERE empno In so_empno ORDER BY empno.
+
+IF sy-subrc = 0.
+        LOOP AT gt_empmst INTO gs_empmst.
+          at FIRST.
+            WRITE: / 'empno' , 10 'emp name', 20 'gender', 30 'deptd'.
+            uline.
+           ENDAT.
+           WRITE: / gs_empmst-empno, 10 gs_empmst-empnm, 20 gs_empmst-gender, 30 gs_empmst-deptcd.
+        ENDLOOP.
+ENDIF.

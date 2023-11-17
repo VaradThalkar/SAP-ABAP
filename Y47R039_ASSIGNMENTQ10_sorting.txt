@@ -1,0 +1,109 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R110_ASSIGNMENTQ10
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R110_ASSIGNMENTQ10.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_var1  TYPE i,
+              p_var2  TYPE i,
+              p_var3  TYPE i,
+              p_var4  TYPE i,
+              p_var5  TYPE i,
+              p_var6  TYPE i,
+              p_var7  TYPE i,
+              p_var8  TYPE i,
+              p_var9  TYPE i,
+              p_var10 TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+
+DATA: temp TYPE i.
+
+START-OF-SELECTION.
+
+  WRITE: 'Sort Given Numbers in Ascending Order'.
+  WRITE:
+/  p_var1,
+/  p_var2,
+/  p_var3,
+/  p_var4,
+/  p_var5,
+/  p_var6,
+/  p_var7,
+/  p_var8,
+/  p_var9,
+/  p_var10.
+  SKIP.
+  ULINE.
+
+
+  DO 10 TIMES.
+
+    IF p_var1 > p_var2.
+      temp = p_var1.
+      p_var1 = p_var2.
+      p_var2 = temp.
+    ENDIF.
+    IF p_var2 > p_var3.
+      temp = p_var2.
+      p_var2 = p_var3.
+      p_var3 = temp.
+
+    ENDIF.
+    IF p_var3 > p_var4.
+      temp = p_var3.
+      p_var3 = p_var4.
+      p_var4 = temp.
+
+    ENDIF.
+    IF p_var4 > p_var5.
+      temp = p_var4.
+      p_var4 = p_var5.
+      p_var5 = temp.
+
+    ENDIF.
+    IF p_var5 > p_var6.
+      temp = p_var5.
+      p_var5 = p_var6.
+      p_var6 = temp.
+
+    ENDIF.
+    IF p_var6 > p_var7.
+      temp = p_var6.
+      p_var6 = p_var7.
+      p_var7 = temp.
+
+    ENDIF.
+    IF p_var7 > p_var8.
+      temp = p_var7.
+      p_var7 = p_var8.
+      p_var8 = temp.
+
+    ENDIF.
+    IF p_var8 > p_var9.
+      temp = p_var8.
+      p_var8 = p_var9.
+      p_var9 = temp.
+
+    ENDIF.
+    IF p_var9 > p_var10.
+      temp = p_var9.
+      p_var9 = p_var10.
+      p_var10 = temp.
+
+    ENDIF.
+
+  ENDDO.
+
+  WRITE: / 'Output:',
+  / p_var1,
+  / p_var2,
+  / p_var3,
+  / p_var4,
+  / p_var5,
+  / p_var6,
+  / p_var7,
+  / p_var8,
+  / p_var9,
+  / p_var10.

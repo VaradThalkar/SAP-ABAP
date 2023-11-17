@@ -1,0 +1,71 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R109_ASSIGNMENTQ9
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R109_ASSIGNMENTQ9.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_var1 TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+DATA: count TYPE i.
+
+DATA: temp   TYPE i,
+        digit  TYPE i,
+        num    TYPE string,
+        val    TYPE i,
+        sum1   TYPE i,
+        lv_len TYPE i.
+
+START-OF-SELECTION.
+  WRITE: / 'Check Wheather Given Number is Armstrong or Not'.
+  SKIP.
+  WRITE: 'Input Number:', p_var1.
+  ULINE.
+
+
+
+  num = p_var1.
+  lv_len = strlen( num ) - 1.
+
+  temp = p_var1.
+  WHILE temp NE 0.
+
+    digit = temp MOD 10.
+    PERFORM power USING digit CHANGING val.
+    sum1 = sum1 + val.
+    temp = temp DIV 10.
+
+  ENDWHILE.
+
+  IF sum1 = p_var1.
+
+    WRITE: p_var1, 'is a Armostrong Number' COLOR 5.
+  ELSE.
+    WRITE: p_var1, 'is not a Armstrong Number' COLOR 6.
+  ENDIF.
+
+END-OF-SELECTION.
+
+
+*&---------------------------------------------------------------------*
+*& Form power
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> DIGIT
+*&      <-- VAL
+*&---------------------------------------------------------------------*
+FORM power  USING    p_digit
+            CHANGING p_val.
+  DATA: num1 TYPE i VALUE 1.
+  DATA: len TYPE i.
+  len = lv_len.
+  WHILE len NE 0.
+
+    num1 = num1 * p_digit..
+    len -= 1.
+
+  ENDWHILE.
+  p_val = num1.
+ENDFORM.

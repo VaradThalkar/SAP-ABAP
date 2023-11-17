@@ -1,0 +1,20 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R124_ASSIGNMENTQ24
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r124_assignmentq24.
+
+DATA: diff TYPE i.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS : p_from TYPE sy-datum,
+               p_to   TYPE sy-datum.
+SELECTION-SCREEN END OF BLOCK b1.
+
+START-OF-SELECTION.
+  diff = p_to - p_from.
+
+  WRITE: / 'Difference between', p_from, 'and', p_to, 'is', diff, 'calendar days.'.
+
+END-OF-SELECTION.

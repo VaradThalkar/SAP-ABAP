@@ -1,0 +1,27 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R026_CONSTRUCTOR_DEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R026_CONSTRUCTOR_DEMO.
+
+CLASS class1 DEFINITION.
+  PUBLIC SECTION.
+    DATA: num1 type i.
+    METHOds: method1,constructor.
+ENDCLASS.
+
+CLASS class1 IMPLEMENTATION.
+  method method1.
+    WRITE: / 'This is method1'.
+  ENDMETHOD.
+
+  method constructor.
+    num1 =  10.
+    WRITE: 'Constuctor Trigerred'.
+    write: / num1.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+  DATA(object1) = new class1( ).

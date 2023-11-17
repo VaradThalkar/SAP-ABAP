@@ -1,0 +1,30 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R014_INsERT_DEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R014_INSERT_DEMO.
+
+TABLES Y47C_DEPTMST.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+PARAMETERS: p_deptcd TYPE y47c_deptmst-deptcd,
+            p_deptnm TYPE y47c_deptmst-deptnm.
+SELECTION-SCREEN END OF BLOCK b1.
+
+DATA: gs_deptmst TYPE y47c_deptmst,
+      gt_deptmst TYPE TABLE of y47c_deptmst.
+
+START-OF-SELECTIOn.
+WRITE: / 'Insert statement using commit and rollback' .
+
+gs_deptmst-deptcd = p_deptcd.
+gs_deptmst-deptnm = p_deptnm.
+INSERT y47c_deptmst FROM gs_deptmst.
+IF sy-subrc = 0.
+  COMMIT WORK.
+    MESSAGE: 'data inserted sucessfully' TYPE 'S'.
+else.
+  ROLLBACK WORK.
+    message: 'unable to insert data' type 'e' DISPLAY LIKE 'w'.
+ENDIF.

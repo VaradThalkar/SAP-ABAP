@@ -1,0 +1,58 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R129_ASSIGNMENTQ29
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r057_assignmentq29.
+
+
+SELECTION-SCREEN BEGIN OF BLOCK b WITH FRAME TITLE TEXT-001.
+PARAMETERS: p_age1 TYPE sy-datum,
+p_age2 TYPE sy-datum.
+SELECTION-SCREEN END OF BLOCK b.
+WRITE : 'Person 1 Birth Date:',p_age1, / 'Person 2 Birth Date:',p_age2.
+IF p_age1 > p_age2.
+data temp TYPE sy-datum.
+temp = p_age1.
+p_age1 = p_age2.
+p_age2 = temp.
+ENDIF.
+*data months TYPE i.
+data years_diff TYPE i.
+data months_diff TYPE i.
+data days_diff TYPE i.
+data month_diff TYPE i.
+CALL FUNCTION 'HR_99S_INTERVAL_BETWEEN_DATES'
+  EXPORTING
+   BEGDA                   = p_age1
+    endda                   = p_age2
+*   TAB_MODE                = ' '
+*   IV_LEAP_YEAR_MODE       =
+ IMPORTING
+*   DAYS                    = days_diff
+*   C_WEEKS                =
+   C_MONTHS                = month_diff
+   C_YEARS                 =  years_diff
+*   WEEKS                   =
+*   MONTHS                  = months_diff
+*   YEARS                   = years_diff
+*   D_MONTHS                = months.
+*   MONTH_TAB               =
+          .
+*months_diff = years_diff / 12.
+*month_diff = month_diff / 365 / 12.
+IF years_diff = 0.
+  WRITE: 'Age Difference between these two individuals is', years_diff,'Years and ',month_diff, 'Months'.
+else.
+  data(mm1) = p_age1+4(2).
+data(mm2) = p_age2+4(2).
+clear months_diff.
+months_diff = mm2 - mm1.
+IF months_diff < 0.
+  months_diff = months_diff * -1.
+ENDIF.
+skip.
+*WRITE months.
+WRITE: 'Age Difference between these two individuals is', years_diff,'Years and ',months_diff, 'Months'.
+
+ENDIF.

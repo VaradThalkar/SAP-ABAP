@@ -1,0 +1,111 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R003_STRIN_OPERATIONS
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R003_STRING_OPERATIONS.
+
+*Concatenate
+*Condense
+*Strlen
+*replace, search, find, shift, split.
+
+DATA : lv_title1 TYPE char20 VALUE 'SAP ABAP Training'.
+DATA : lv_title2 TYPE char20 VALUE 'String Operation'.
+DATA : lv_title3 TYPE char40 VALUE '          String        Operation        '.
+DATA: lv_title4 TYPE char30 VALUE '07-03-2000'.
+DATA : lv_str TYPE string,
+      lv_str1 TYPE string,
+      lv_str2 TYPE string,
+      lv_str3 TYPE string.
+
+
+*Concatenate
+WRITE: 'Concatenate' COLOR 7.
+CONCATENATE lv_title1 lv_title2 INTO lv_str.
+WRITE: / lv_title1.
+WRITE: / lv_title2.
+WRITE: / 'Concatenate:(No space)', lv_str.
+
+CLEar lv_str.
+CONCATENATE lv_title1 lv_title2 INTO lv_str SEPARATED BY space.
+WRITE: / 'concatenate:', lv_str.
+ULINE.
+
+*Condense
+WRITE: / 'Condense' COLOR 7.
+WRITE / lv_title3.
+CONDENSE lv_title3.
+WRITE: / 'Condense:', lv_title3.
+CONDENSE lv_title3 NO-GAPS.
+WRITE: / 'Condense:(no-gaps) ', lv_title3.
+
+uline.
+*-----------
+*split
+WRITE: 'Split' COLOR 7.
+WRITE:/ 'Birthdate: ',lv_title4.
+SPLIT lv_title4 at '-' INTO lv_str1 lv_str2 lv_str3.
+WRITE:/ 'day:', lv_str1.
+WRITE:/ 'Month:', lv_str2.
+WRITE:/ 'year:', lv_str3.
+uline.
+*-----------
+*Translate
+WRITE: 'Translate' COLOR 7.
+Write: / 'Before Translate: ', lv_title2.
+TRANSLATE lv_title2 TO UPPER CASE.
+WRITE: / 'After Translate: ' , lv_title2.
+Skip.
+Write: / 'Before Translate: ', lv_title1.
+TRANSLATE lv_title1 TO LOWER CASE.
+WRITE: / 'After Translate: ' , lv_title1.
+ULINE.
+*-----------
+*Shift
+WRITE: 'Shift' COLOR 7.
+DATA: lv_shift TYPE sy-abcde.
+lv_shift = sy-abcde.
+WRITE: / 'Before shift:', lv_shift.
+SHIFT lv_shift.
+WRITE: / 'After Left Shift: ',lv_shift.
+lv_shift = sy-abcde.
+SHIFT lv_shift CIRCULAR.
+WRITE: / 'After circular Shift: ',lv_shift.
+lv_shift = sy-abcde.
+SHIFT lv_shift Right.
+WRITE: / 'After Right Shift: ',lv_shift.
+ULINe.
+*-----------
+*jestification
+WRITE: 'Jestification' COLOR 7.
+WRITE: / 'Before Jestification' COLOR 1.
+WRITE: / lv_title1.
+WRITE: / lv_title2.
+WRITE: / lv_title3.
+WRITE: / 'After Jestification' COLOR 1.
+WRITE: / lv_title1 LEFT-JUSTIFIED.
+WRITE: / lv_title2 CENTERED.
+WRITE: / lv_title3 RIGHT-JUSTIFIED.
+ULINE.
+
+*------------
+*date time formatting
+WRITE: 'Date Time Formating' color 7.
+DATA: lv_date TYPE d.
+DATA: lv_time type t.
+
+lv_date = sy-datum.
+lv_time = sy-uzeit.
+
+WRITE: / 'current date: ',lv_date.
+WRITE: / 'current time: ',lv_time.
+
+data(YYYY) =  sy-datum+0(4).
+data(MM) = sy-datum+4(2).
+data(dd) = sy-datum+6(2).
+
+WRITE: / 'current date format:', lv_date DD/MM/YYYY.
+WRITE: / 'currect time format:', lv_time USING EDIT MASK '__:__'.
+get TIME STAMP FIELD data(lv_ts).
+WRITE: / 'Different time stamp', lv_ts.

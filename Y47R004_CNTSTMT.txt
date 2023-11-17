@@ -1,0 +1,81 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R004_CNTSTMT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R004_CNTSTMT.
+
+INITIALIZATION.
+DATA : lv_num1 TYPE i VALUE 100.
+DATA : lv_num2 TYPE i VALUE 24.
+DATA : Lv_num3 TYPE i VALUE 23.
+DATA : lv_col TYPE char10.
+
+TOP-OF-PAGE.
+ WRITE: 'Control Statement' COLOR 7.
+ WRITE: / 'If..., IF....ELSE, IF...ELSEIF...ELSE,CASE ENDCASE'.
+
+ ULINE.
+
+START-OF-SELECTION.
+*---- IF statement
+WRITE: / 'If Statement' COLOR 1.
+WRITE: / 'lv_num1 : 100'.
+WRITE: / 'Condition: lv_num1=100'.
+IF lv_num1 = 100.
+ WRITE: / 'output: lv_num1 is equal to 100'.
+ENDIF.
+ULINE.
+
+*---- IF ELSE Statement
+WRITE: / 'If else statement' COLOR 1.
+WRITE: / 'value1: lv_num1 = 100'.
+WRITE: / 'Value2: lv_num1 = 50'.
+WRITE: / 'Condition: lv_num1=100'.
+skip.
+WRITE: / 'value1'.
+IF lv_num1 = 100.
+  WRITE: / 'output: lv_num1 is equal to 100'.
+  ELSE.
+    WRITE: / 'output: lv_num1 is not equal to 100'.
+ENDIF.
+lv_num1 = 50.
+skip.
+WRITE: / 'value2'.
+IF lv_num1 = 100.
+  WRITE: / 'output: lv_num1 is equal to 100'.
+  ELSE.
+    WRITE: / 'output: lv_num1 is not equal to 100'.
+ENDIF.
+
+ULINE.
+
+*---- IF ELSEIF ELSE statement
+WRITE: / 'If elseif else statement' COLOR 1.
+WRITE: / 'Value: 24'.
+WRITE: / 'condition: Odd even zero'.
+IF lv_num2 MOD 2 = 0.
+  WRITE: / 'Value is even'.
+  ELSEIF lv_num2 MOD 2 NE 0.
+    WRITE: / 'Value is odd'.
+  ELSE.
+    WRITE: / 'Value is zero'.
+ENDIF.
+
+ULINE.
+
+*---- Case When endcase statement
+WRITE: / 'CASE ENDCASE statement' COLOR 1.
+lv_col = 'Yellow'.
+WRITE: / 'Check color'.
+WRITE: / 'color:',lv_col.
+CASE lv_col.
+  WHEN  'RED'.
+    WRITE: / 'Red'.
+  WHEN 'BLUE'.
+    WRITE: / 'Blue'.
+  WHEN 'GREEN'.
+    WRITE: / 'Green'.
+  WHEN OTHERS.
+    WRITE: / 'Other than Primary RGB colors'.
+ENDCASE.

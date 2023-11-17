@@ -1,0 +1,35 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R105_ASSIGNMENTQ5
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R105_ASSIGNMENTQ5.
+
+PARAMETERS : gv_from TYPE i,
+             gv_to TYPE i.
+
+at SELECTION-SCREEN.
+  IF gv_from > gv_to.
+    MESSAGE 'from year should not be greater than to year' TYPE 'E'.
+  ELSEIF gv_to - gv_from > 40.
+    MESSAGE 'year difference is greater than 40' TYPE 'I' DISPLAY LIKE 'W'.
+  ENDIF.
+
+  START-OF-SELECTION.
+  DATA: lv_year TYPE i,
+        lv_start TYPE char4,
+        lv_end TYPE char4,
+        lv_yearC TYPE char4.
+  lv_start = gv_from.
+  lv_end = gv_to.
+  WRITE: / 'starting year:', lv_start.
+  WRITE: / 'Ending year:', lv_end.
+
+  lv_year =  gv_from.
+  WHILE lv_year <= gv_to.
+    IF ( lv_year mod 4 = 0 AND lv_year mod 100 <> 0 ) OR ( lv_year mod 400 = 0 ).
+      lv_yearC = lv_year.
+      WRITE / lv_yearC.
+    ENDIF.
+    lv_year += 1.
+  ENDWHILE.

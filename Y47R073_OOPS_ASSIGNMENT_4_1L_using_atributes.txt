@@ -1,0 +1,39 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R073_OOPS_ASSIGNMENT_4_3
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R073_OOPS_ASSIGNMENT_4_1L.
+
+CLASS example DEFINITION.
+  PUBLIC SECTION.
+    CONSTANTS: const_value TYPE i VALUE 20.
+
+    CLASS-DATA: static_value TYPE i.
+    DATA :      instance_value TYPE i.
+
+    METHODS: constructor,
+      display_values.
+
+ENDCLASS.
+
+CLASS example IMPLEMENTATION.
+  METHOD constructor.
+    static_value = 60.
+    instance_value = 90.
+  ENDMETHOD.
+
+  METHOD display_values.
+    WRITE: /'Static Attribute:  ',static_value,
+            /'Instance Attribute:',instance_value,
+            /'Constant:'  ,const_value.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+*  DATA: obj TYPE REF TO example.
+*  CREATE OBJECT obj.
+*obj->display_values( ).
+
+  DATA(obj) = NEW example( ).
+  CALL METHOD obj->display_values.

@@ -1,0 +1,42 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R117_ASSIGNMENTQ17
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R117_ASSIGNMENTQ17.
+SELECTION-SCREEN begin of block b1 WITH FRAME TITLE text-001.
+  PARAMETERS: p_var type string.
+  SELECTION-SCREEN end of BLOCK b1.
+
+  data: words type TABLE OF string,
+        word type string.
+
+START-OF-SELECTION.
+write: / 'Input String:', p_var.
+skip.
+uline.
+SPLIT p_var at space into TABLE words.
+data: mod type string.
+LOOP AT words into word.
+
+ IF word = 'FBI'.
+   word = 'FEDRAL BUREU OF INVESTIGATION'.
+   modify words from word.
+ ENDIF.
+  IF word = 'SBI'.
+   word = 'STATE BANK OF INDIA'.
+   modify words from word.
+ ENDIF.
+ IF word = 'ISRO'.
+   word = 'Indian Space Research Organization'.
+   modify words from word.
+ ENDIF.
+
+ENDLOOP.
+
+write: 'Output:'.
+LOOP AT words into word.
+
+WRITE: word.
+
+ENDLOOP.

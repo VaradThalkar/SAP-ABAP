@@ -1,0 +1,147 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R016_JOIN_DEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r016_join_demo.
+TABLES y47m_salmst.
+
+TYPES : BEGIN OF ty_empdet,
+          empno     TYPE y47m_empmst-empno,
+          empnm     TYPE y47m_empmst-empnm,
+          joiningdt TYPE y47m_empmst-joiningdt,
+          salhd     TYPE y47m_salmst-salhd,
+          salary    TYPE y47m_salmst-salary,
+        END OF ty_empdet.
+
+DATA: gs_empdet TYPE ty_empdet,
+      gt_empdet TYPE TABLE OF ty_empdet.
+
+START-OF-SELECTION.
+
+*-----Inner join
+  WRITE : / 'Inner join on empmst and salmst' COLOR 1.
+  SELECT a~empno
+         a~empnm
+         a~joiningdt
+         b~salhd
+         b~salary
+         FROM y47m_empmst AS a
+         INNER JOIN y47m_salmst AS b
+         ON a~empno = b~empno
+         INTO TABLE gt_empdet.
+
+  IF sy-subrc = 0.
+    LOOP AT gt_empdet INTO gs_empdet.
+      AT FIRST.
+        WRITE: / 'emp no', 10 'emp name', 20 'joiningdt', 35 'salhd', 45 'salary'.
+        ULINE.
+      ENDAT.
+      WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-joiningdt, 35 gs_empdet-salhd, 45 gs_empdet-salary.
+    ENDLOOP.
+  ENDIF.
+  ULINE.
+  CLEAR gt_empdet.
+
+*-----Left outer join
+  WRITE : / 'Left outer join on empmst and salmst' COLOR 1.
+  SELECT a~empno
+         a~empnm
+         a~joiningdt
+         b~salhd
+         b~salary
+         FROM y47m_empmst AS a
+         LEFT OUTER JOIN y47m_salmst AS b
+         ON a~empno = b~empno
+         INTO TABLE gt_empdet.
+
+  IF sy-subrc = 0.
+    LOOP AT gt_empdet INTO gs_empdet.
+      AT FIRST.
+        WRITE: / 'emp no', 10 'emp name', 20 'joiningdt', 35 'salhd', 45 'salary'.
+        ULINE.
+      ENDAT.
+      WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-joiningdt, 35 gs_empdet-salhd, 45 gs_empdet-salary.
+    ENDLOOP.
+  ENDIF.
+  CLEAR gt_empdet.
+  ULINE.
+
+*----Right outer join
+  WRITE : / 'Right outer join on empmst and salmst' COLOR 1.
+  SELECT
+    a~empno ,
+         a~empnm ,
+         a~joiningdt ,
+         b~salhd ,
+         b~salary
+         FROM   y47m_empmst AS a
+         RIGHT OUTER JOIN y47m_salmst AS b
+         ON a~empno = b~empno
+         INTO TABLE @gt_empdet.
+
+  IF sy-subrc = 0.
+    LOOP AT gt_empdet INTO gs_empdet.
+      AT FIRST.
+        WRITE: / 'emp no', 10 'salhd', 20 'salary',35 'emp name', 45 'joiningdt'.
+        ULINE.
+      ENDAT.
+      WRITE: / gs_empdet-empno,10 gs_empdet-salhd, 20 gs_empdet-salary, 35 gs_empdet-empnm, 45 gs_empdet-joiningdt.
+    ENDLOOP.
+  ENDIF.
+  CLEAR gt_empdet.
+  ULINE.
+*----sum
+  WRITE: / 'sum' COLOR 1.
+
+  DATA: gv_total TYPE y47salary.
+
+  SELECT SUM( salary )
+    FROM y47m_salmst
+    INTO gv_total
+    WHERE empno = '1001'.
+    IF sy-subrc = 0.
+      WRITE: / 'Sum of all entries with empno 1001 is:', gv_total.
+      SKIP.
+      ULINE.
+    ENDIF.
+
+*----Count
+WRITE : / 'count' color 1.
+data: gv_count type i.
+SELECT COUNT( empno )
+    FROM y47m_salmst
+    WHERE empno = '1001'
+    INTO @gv_count.
+IF sy-subrc = 0.
+      WRITE: / 'Count of all entries with empno 1001 is:', gv_count LEFT-JUSTIFIED.
+      SKIP.
+      ULINE.
+    ENDIF.
+
+
+*-----Max
+WRITE: / 'Max' color 1.
+DATA : gv_max type y47salary.
+SELECT Max( salary )
+    FROM y47m_salmst
+    INTO gv_max
+    WHERE empno = '1001'.
+IF sy-subrc = 0.
+      WRITE: / 'Max of all salaries with empno 1001 is:', gv_MAx.
+      SKIP.
+      ULINE.
+    ENDIF.
+
+*-----Min
+WRITE: / 'Min' color 1.
+DATA : gv_min type y47salary.
+SELECT Min( salary )
+    FROM y47m_salmst
+    INTO gv_min
+    WHERE empno = '1001'.
+IF sy-subrc = 0.
+      WRITE: / 'Min of all salaries with empno 1001 is:', gv_Min.
+      SKIP.
+      ULINE.
+    ENDIF.

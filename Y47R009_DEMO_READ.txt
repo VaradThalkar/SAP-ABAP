@@ -1,0 +1,38 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R009_DEMO_READ
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r009_demo_read.
+TYPES: BEGIN OF ty_empdet,
+         empno TYPE char5,
+         empnm TYPE char20,
+       END OF ty_empdet.
+
+DATA: gs_empdet TYPE ty_empdet,
+      gt_empdet TYPE TABLE OF ty_empdet.
+
+gs_empdet-empno = '0003'.
+gs_empdet-empnm = 'Ameya'.
+APPEND gs_empdet TO gt_empdet.
+
+gs_empdet-empno = '0003'.
+gs_empdet-empnm = 'Ameya1'.
+APPEND gs_empdet TO gt_empdet.
+
+gs_empdet-empno = '0001'.
+gs_empdet-empnm = 'Varad'.
+
+APPEND gs_empdet TO gt_empdet.
+
+LOOP AT gt_empdet INTO gs_empdet.
+READ TABLE gt_empdet INTO gs_empdet WITH TABLE KEY empno = '0003'  empnm = gs_empdet-empnm.
+
+  IF sy-subrc = 0.
+
+WRITE: / gs_empdet-empno, 10 gs_empdet-empnm.
+
+  ENDIF.
+*    WRITE: / gs_empdet-empno, 10 gs_empdet-empnm.
+  CLEAR gs_empdet.
+ENDLOOP.

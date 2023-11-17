@@ -1,0 +1,30 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R028_FRIENDCLASS_DEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R028_FRIENDCLASS_DEMO.
+
+class umpire DEFINITION.
+  PUBLIC SECTION.
+    METHODS : set_name IMPORTING im_name TYPE string.
+ENDCLASS.
+
+class cricketer DEFINITION FRIENDS umpire.
+  PRIVATE SECTION.
+    DATA name type string.
+ENDCLASS.
+
+CLASS umpire IMPLEMENTATION.
+  METHOD set_name.
+    data:lo_cricketer type REF TO cricketer.
+    CREATE OBJECT lo_cricketer.
+    lo_cricketer->name = im_name.
+    WRITE: im_name.
+   ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+  DATA: lo_umpire TYPE REF TO umpire.
+  create OBJECT lo_umpire.
+  lo_umpire->set_name('Kohli').

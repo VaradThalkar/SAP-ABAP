@@ -1,0 +1,73 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R068_OOPS_ASSIGNMENT_4_4
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R068_OOPS_ASSIGNMENT_4_4.
+
+CLASS lcl_animal DEFINITION. "Super class Defination
+
+  PUBLIC SECTION.
+    METHODS: hungry.
+
+ENDCLASS.
+
+
+CLASS lcl_lion DEFINITION INHERITING FROM lcl_animal. "Sub class Defination
+
+  PUBLIC SECTION.
+
+    METHODS: hungry REDEFINITION,
+             fasting.
+
+ENDCLASS.
+
+
+CLASS lcl_animal IMPLEMENTATION. "Super class Implimentation
+
+  METHOD hungry.
+
+    WRITE: / 'An animal is hungry'.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_lion IMPLEMENTATION. "Sub Class implimentation
+
+  METHOD hungry.
+
+    WRITE: / 'A Lion is hungry'.
+
+  ENDMETHOD.
+
+  METHOD fasting.
+
+    WRITE: / 'But Lion is on Fasting today.'.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+
+START-OF-SELECTION.
+
+  DATA: lo_animal TYPE REF TO lcl_animal,
+
+        lo_lion   TYPE REF TO lcl_lion.
+  Write: / 'Before Casting calling methods of superclass using superclass object' COLOR 3.
+   CREATE OBJECT lo_animal.
+
+   CALL METHOD lo_animal->hungry( ).
+* ANIMAL object with NARROW CASTING
+  skip.
+  skip.
+  WRITE: / 'After Casting calling methods of subclass using superclass object' COLOR 1.
+
+  CREATE OBJECT lo_lion.
+
+  lo_animal = lo_lion.      "Casting Subclass Into Superclass = Narrow Casting
+
+  CALL METHOD lo_animal->hungry( ).  "Calling subclass methods using superclass object
+
+  CALL METHOD lo_animal->('FASTING'). "Calling subclass methods using superclass object

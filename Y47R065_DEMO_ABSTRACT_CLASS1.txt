@@ -1,0 +1,53 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R065_DEMO_ABSTRACT_CLASS1
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R065_DEMO_ABSTRACT_CLASS1.
+
+CLASS lcl_abstract DEFINITION ABSTRACT.
+  PUBLIC SECTION.
+    METHODS : abstract_method ABSTRACT,
+      final_method FINAL,
+      normal_method.
+ENDCLASS.
+
+CLASS lcl_abstract IMPLEMENTATION.
+  METHOD final_method.
+    " this method cannot be redefined in child class.
+
+    WRITE: / 'Inside Final Method'.
+  ENDMETHOD.
+
+  METHOD normal_method.
+    "some logic
+    WRITE: / 'Inside Normal Method'.
+  ENDMETHOD.
+
+  "we cannot implement abstract methd here
+
+ENDCLASS.
+CLASS lcl_abap_class DEFINITION INHERITING FROM lcl_abstract.
+  PUBLIC SECTION.
+    METHODS : abstract_method REDEFINITION.
+    class-methods : abap_class_method.
+ENDCLASS.
+
+CLASS lcl_abap_class IMPLEMENTATION.
+method abstract_method.
+  "Abstarct method implementation.
+
+  WRITE: / 'Inside abstract method'.
+endmethod.
+
+method abap_class_method.
+  ""logic
+ ENDMETHOD.
+
+ENDCLASS.
+
+START-OF-SELECTION.
+DAta(lo_obj1) = new lcl_abap_class( ).
+lo_obj1->abstract_method( ).
+lo_obj1->final_method( ).
+lo_obj1->normal_method( ).

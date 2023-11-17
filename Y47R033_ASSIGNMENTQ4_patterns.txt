@@ -1,0 +1,163 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R104_ASSIGNMENTQ4
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r104_assignmentq4.
+
+
+PARAMETERS: gv_range TYPE i,
+            gv_up    RADIOBUTTON GROUP r1,
+            gv_down  RADIOBUTTON GROUP r1,
+            gv_left  RADIOBUTTON GROUP r1,
+            gv_right RADIOBUTTON GROUP r1.
+
+WRITE: 'Input range is:',gv_range.
+skip.
+IF gv_up = abap_true.
+  PERFORM up USING gv_range.
+ELSEIF gv_down = abap_true.
+  PERFORM down USING gv_range.
+ELSEIF gv_left = abap_true.
+  PERFORM left USING gv_range.
+ELSEIF gv_right = abap_true.
+  PERFORM right USING gv_range.
+ENDIF.
+*&---------------------------------------------------------------------*
+*& Form up
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_RANGE
+*&---------------------------------------------------------------------*
+FORM up USING  p_gv_range.
+  DATA: i TYPE i,
+        j TYPE i,
+        k TYPE i.
+  i = 1.
+  WHILE i <= p_gv_range.
+    j = 1.
+    WHILE j <= p_gv_range - i.
+      WRITE ' '.
+      j += 1.
+    ENDWHILE.
+    k = 1.
+    WHILE k <= 2 * i - 1.
+      WRITE '*'.
+      k += 1.
+    ENDWHILE.
+    SKIP.
+    i = i + 1.
+  ENDWHILE.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form down
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_RANGE
+*&---------------------------------------------------------------------*
+FORM down USING p_gv_range.
+  DATA: i TYPE i,
+        j TYPE i,
+        k TYPE i.
+  i = p_gv_range.
+  WHILE i >= 1.
+    j = 1.
+    WHILE j <= p_gv_range - i.
+      WRITE ' '.
+      j += 1.
+    ENDWHILE.
+    k = 1.
+    WHILE k <= 2 * i - 1.
+      WRITE '*'.
+      k += 1.
+    ENDWHILE.
+    SKIP.
+    i = i - 1.
+  ENDWHILE.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form left
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_RANGE
+*&---------------------------------------------------------------------*
+FORM left USING p_gv_range.
+  DATA: i TYPE i,
+        j TYPE i,
+        k TYPE i.
+  i = 1.
+  WHILE i <= p_gv_range .
+    j = 1.
+    WHILE j <= p_gv_range - i.
+      WRITE ' '.
+      j += 1.
+    ENDWHILE.
+    k = 1.
+    WHILE k <= i.
+      WRITE '*'.
+      k += 1.
+    ENDWHILE.
+    SKIP.
+    i = i + 1.
+  ENDWHILE.
+  i = p_gv_range - 1.
+  WHILE i >= 1.
+    j = 1.
+    WHILE j <= p_gv_range - i.
+      WRITE ' '.
+      j += 1.
+    ENDWHILE.
+    k = 1.
+    WHILE k <= i.
+      WRITE '*'.
+      k += 1.
+    ENDWHILE.
+    SKIP.
+    i = i - 1.
+  ENDWHILE.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form right
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_RANGE
+*&---------------------------------------------------------------------*
+FORM right USING p_gv_range.
+DATA: i TYPE i,
+        j TYPE i,
+        k TYPE i.
+  i = 1.
+  WHILE i <= p_gv_range .
+    j = 1.
+    WHILE j <= i.
+      WRITE '*'.
+      j += 1.
+    ENDWHILE.
+    k = 1.
+    WHILE k <= P_GV_RANGE.
+      WRITE ' '.
+      k += 1.
+    ENDWHILE.
+    SKIP.
+    i = i + 1.
+  ENDWHILE.
+  i = p_gv_range - 1.
+  WHILE i >= 1.
+    j = 1.
+    WHILE j <= i.
+      WRITE '*'.
+      j += 1.
+    ENDWHILE.
+    k = 1.
+    WHILE k <= p_gv_range.
+      WRITE ' '.
+      k += 1.
+    ENDWHILE.
+    SKIP.
+    i = i - 1.
+  ENDWHILE.
+ENDFORM.

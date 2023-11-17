@@ -1,0 +1,160 @@
+*&---------------------------------------------------------------------*
+*& Modulpool Y47M005_SNRO_EMP_U
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+PROGRAM y47m005_snro_emp_u.
+TABLES : y47m_empmst1.
+
+DATA : gt_empmst TYPE TABLE OF y47m_empmst1,
+       gs_empmst TYPE y47m_empmst1.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+  SET PF-STATUS 'Y47EMPDET'.
+  SET TITLEBAR '100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+
+  SELECT * FROM y47m_empmst1 INTO TABLE gt_empmst WHERE empno = y47m_empmst1-empno.
+  IF sy-subrc = 0.
+
+    READ TABLE gt_empmst INTO gs_empmst WITH KEY empno = y47m_empmst1-empno.
+    y47m_empmst1-empnm = gs_empmst-empnm.
+    y47m_empmst1-gender = gs_empmst-gender.
+    y47m_empmst1-birthdt = gs_empmst-birthdt.
+    y47m_empmst1-joiningdt = gs_empmst-joiningdt.
+
+
+    CALL SCREEN '0200'.
+  ELSE.
+    MESSAGE 'Record not found for this employee number' TYPE 'E'.
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit_0100 INPUT.
+  IF sy-ucomm = 'EXIT' OR sy-ucomm = 'CANC'.
+    LEAVE PROGRAM.
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0200  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0200 INPUT.
+  IF sy-ucomm = 'BACK'.
+    CALL SCREEN '0100'.
+  ENDIF.
+
+  IF sy-ucomm = 'ENTR'.
+    PERFORM check_data.
+  ENDIF.
+
+  IF sy-ucomm = 'SAVE' OR sy-ucomm = 'B_UPD'.
+    PERFORM check_data.
+    MODIFY y47m_empmst1 FROM y47m_empmst1.
+    IF sy-subrc = 0.
+      COMMIT WORK.
+      MESSAGE ID 'Y47' TYPE 'S' NUMBER '022' WITH y47m_empmst1-empno.
+    ELSE.
+      ROLLBACK WORK.
+      MESSAGE ID 'Y47' TYPE 'E' NUMBER '023'.
+    ENDIF.
+  ENDIF.
+
+  IF sy-ucomm = 'B_DIS'.
+    DATA: lr_alv TYPE REF TO cl_salv_table.
+    SELECT * FROM y47m_empmst1 INTO TABLE gt_empmst ORDER BY empno.
+    TRY.
+        CALL METHOD cl_salv_table=>factory(
+          IMPORTING
+            r_salv_table = lr_alv
+          CHANGING
+            t_table      = gt_empmst ).
+      CATCH cx_salv_msg.
+    ENDTRY.
+    lr_alv->display( ).
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0200 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0200 OUTPUT.
+  SET PF-STATUS 'Y47EMPDET2'.
+  SET TITLEBAR '100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT_0200  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit_0200 INPUT.
+  IF sy-ucomm = 'EXIT' OR sy-ucomm = 'CANC'.
+    LEAVE TO SCREEN '0100'.
+  ENDIF.
+ENDMODULE.
+
+FORM check_data .
+*  ----------------------------------------------------------NAME----------------------------------------
+  DATA: allowed_chars  TYPE string VALUE 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz',
+        lv_name_length TYPE i,
+        char           TYPE c,
+        valid          TYPE abap_bool,
+        lv_name        TYPE y47m_empmst1-empnm.
+
+  IF
+     y47m_empmst1-empnm IS INITIAL OR
+     y47m_empmst1-gender IS INITIAL OR
+     y47m_empmst1-joiningdt IS INITIAL OR
+     y47m_empmst1-birthdt IS INITIAL.
+    MESSAGE 'Make entry in all fields' TYPE 'E'.
+  ENDIF.
+
+  lv_name = y47m_empmst1-empnm.
+  lv_name_length = strlen( lv_name ).
+  DO lv_name_length  TIMES.
+    DATA(len1) = sy-index - 1.
+    char = lv_name+len1(1).
+    IF char CA allowed_Chars.
+      valid = abap_true.
+    ELSE.
+      valid = abap_false.
+      EXIT.
+    ENDIF.
+  ENDDO.
+  IF valid = abap_false.
+    MESSAGE ID 'y47' TYPE 'E' NUMBER '007'.
+  ENDIF.
+
+*-------------------------------------------------Birth and Joining Date----------------------------------------------<
+  DATA: lv_bdt             TYPE y47m_empmst1-birthdt,
+        lv_jdt             TYPE y47m_empmst1-joiningdt,
+        lv_years           TYPE i,
+        difference_in_days TYPE i.
+
+  lv_bdt = y47m_empmst1-birthdt.
+  lv_jdt = y47m_empmst1-joiningdt.
+  difference_in_days = lv_jdt - lv_bdt.
+  lv_years = difference_in_days / 365.
+  IF lv_bdt > lv_jdt.
+    MESSAGE ID 'y47' TYPE 'E' NUMBER '008'.
+  ELSEIF lv_years < 18 .
+    MESSAGE ID 'y47' TYPE 'E' NUMBER '009'.
+  ENDIF.
+
+ENDFORM.

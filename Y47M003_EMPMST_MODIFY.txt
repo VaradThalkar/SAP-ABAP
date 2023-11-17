@@ -1,0 +1,223 @@
+*&---------------------------------------------------------------------*
+*& Modulpool Y47M003_EMPMST_MODIFY
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+PROGRAM Y47M003_EMPMST_MODIFY.
+TABLES: y47m_empmst, y47c_deptmst,y47c_workloc.
+DATA gv_gender TYPE string.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+SET PF-STATUS 'EMPMSTM0100'.
+SET TITLEBAR '100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+IF sy-ucomm = 'ENTR'.
+
+    PERFORM check_data.
+    CALL SCREEN '0200'.
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit_0100 INPUT.
+ IF sy-ucomm = 'EXIT' OR sy-ucomm = 'CANC'.
+    LEAVE PROGRAM.
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form check_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM check_data .
+DATA ls_empmst TYPE y47m_empmst.
+
+  SELECT SINGLE * INTO ls_empmst FROM y47m_empmst
+    WHERE empno = y47m_empmst-empno.
+
+  IF sy-subrc <> 0.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '021'.
+  ELSE.
+    MOVE-CORRESPONDING ls_empmst TO y47m_empmst.
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0200 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0200 OUTPUT.
+SET PF-STATUS 'EMPCH0200'.
+  SET TITLEBAR '100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0200  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0200 INPUT.
+  PERFORM check_data1.
+  CASE sy-ucomm.
+    WHEN 'BACK'.
+      CLEAR y47m_empmst.
+      LEAVE TO SCREEN '0100'.
+    WHEN 'SAVE'.
+      PERFORM update_data.
+    WHEN 'ENTR'.
+      PERFORM validations.
+  ENDCASE.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form check_data1
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM check_data1 .
+  IF y47m_empmst-gender = 'M'.
+    gv_gender = 'MALE'.
+  ELSEIF y47m_empmst-gender = 'F'.
+    gv_gender = 'FEMALE'.
+  ELSEIF y47m_empmst-gender = 'O'.
+    gv_gender = 'OTHERS'.
+  ELSEIF y47m_empmst-gender IS NOT INITIAL.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '019'.
+  ENDIF.
+
+  SELECT SINGLE deptnm INTO y47c_deptmst-deptnm
+      FROM y47c_deptmst
+      WHERE deptcd = y47m_empmst-deptcd.
+  IF sy-subrc <> 0 AND y47m_empmst-deptcd IS NOT INITIAL.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '002'.
+  ENDIF.
+
+  SELECT SINGLE wldesc INTO Y47C_workloc-wldesc
+    FROM Y47C_workloc
+    WHERE wlcd = y47m_empmst-wlcd.
+
+
+  IF sy-subrc <> 0 AND y47m_empmst-wlcd IS NOT INITIAL.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '003'.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form update_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM update_data .
+y47m_empmst-mandt = sy-mandt.
+  y47m_empmst-eenam = sy-uname.
+  y47m_empmst-eedat = sy-datum.
+  y47m_empmst-eezet = sy-uzeit.
+
+  MODIFY y47m_empmst FROM y47m_empmst.
+  IF sy-subrc = 0.
+    COMMIT WORK.
+    MESSAGE ID 'Y47' TYPE 'S' NUMBER '022'.
+    LEAVE TO SCREEN '0100'.
+  ELSE.
+    ROLLBACK WORK.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '023'.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form validations
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM validations .
+
+*  " GENDER
+*BIRTHDT
+*JOININGDT
+*PHONE_NO
+*EMAIL_ID
+*DESIGNATION
+*BANKAC '0123456789!@#$%^&*()-=+_`~[]{}\|;:"<>,./?'
+*BANKNM
+
+  DATA lv_agediff TYPE i.
+*  IF y49m_empmst-gender IS INITIAL
+*    OR y49m_empmst-birthdt IS INITIAL
+*    OR y49m_empmst-joiningdt IS INITIAL
+*    OR y49m_empmst-phone_no IS INITIAL
+*    OR y49m_empmst-email_id IS INITIAL
+*    OR y49m_empmst-designation IS INITIAL
+*    OR y49m_empmst-bankac IS INITIAL
+*    OR y49m_empmst-banknm IS INITIAL.
+*    MESSAGE ID 'Y49' TYPE 'E' NUMBER '007'.
+*  ENDIF.
+  DATA lv_invalidchar TYPE string.
+  lv_invalidchar = '0123456789!@#$%^&*()-=+_`~[]{}\|;:"<>,./?'.
+  IF y47m_empmst-empnm CA lv_invalidchar.
+*    ELSEIF y49m_empmst-empnm CS '0123456789'.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '010'.
+  ENDIF.
+
+  IF y47m_empmst-birthdt >= sy-datum AND y47m_empmst-birthdt IS NOT INITIAL.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '008'.
+  ELSE.
+    CALL FUNCTION 'COMPUTE_YEARS_DIFFERENCE_DATES'
+      EXPORTING
+        first_date                  = y47m_empmst-birthdt
+        second_date                 = y47m_empmst-joiningdt
+      IMPORTING
+        years_between_dates         = lv_agediff
+      EXCEPTIONS
+        sequence_of_dates_not_valid = 1
+        OTHERS                      = 2.
+    IF sy-subrc <> 0.
+* Implement suitable error handling here
+    ENDIF.
+    IF lv_agediff < 18 AND y47m_empmst-birthdt IS NOT INITIAL AND y47m_empmst-joiningdt IS NOT INITIAL.
+      MESSAGE ID 'Y47' TYPE 'E' NUMBER '009'.
+    ENDIF.
+  ENDIF.
+
+  IF y47m_empmst-phone_no <= 999999999 AND y47m_empmst-phone_no IS NOT INITIAL.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '020'.
+  ENDIF.
+
+*---------- email validation--------------  and lv_email cp '@gmail.com'
+  DATA lv_email TYPE string.
+  lv_email = y47m_empmst-email_id.
+  IF y47m_empmst-email_id is not INITIAL.
+
+
+  IF lv_email CP '*@*.*' AND y47m_empmst-email_id IS NOT INITIAL.
+    IF lv_email CP '@gmail.com' OR lv_email CP '@outlook.com'.
+
+    ENDIF.
+  ELSE.
+
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '024'.
+  ENDIF.
+endif.
+ENDFORM.

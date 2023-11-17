@@ -1,0 +1,50 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R101_ASSIGNMENTQ1
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R101_ASSIGNMENTQ1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+PARAMETERS: gv_start TYPE i,
+            gv_end TYPE i,
+            rb_All RADIOBUTTON GROUP r1,
+            rb_even RADIOBUTTON GROUP r1,
+            rb_odd RADIOBUTTON GROUP r1.
+SELECTION-SCREEN END OF BLOCK b1.
+
+AT SELECTION-SCREEN.
+IF gv_start > gv_end.
+    MESSAGE 'Start Number should be Less than end number' TYPE 'E'.
+  else.
+ENDIF.
+
+
+START-OF-SELECTION.
+  DATA: gv_result TYPE i.
+    WRITE: / 'Starting number:', gv_start LEFT-JUSTIFIED.
+    WRITE: / 'Ending number:', gv_end LEFT-JUSTIFIED.
+    IF  rb_All = abap_true.
+      WRITE: / 'Output for all numbers is:'.
+      WHILE gv_start <= gv_end.
+        WRITE: / gv_start LEFT-JUSTIFIED.
+        gv_start = gv_start + 1.
+      ENDWHILE.
+    ELSEIF rb_even = abap_true.
+      WRITE: / 'output for all even number is:'.
+      WHILE gv_start <= gv_end.
+        IF gv_start mod 2 eq 0.
+          WRITE: / gv_start.
+        ENDIF.
+        gv_start += 1.
+      ENDWHILE.
+    ELSEIF rb_odd = abap_true.
+      WRITE: / 'Output for all Odd Number is:'.
+      WHILE gv_start <= gv_end.
+        IF gv_start mod 2 <> 0.
+          WRITE: / gv_start.
+        ENDIF.
+        gv_start += 1.
+      ENDWHILE.
+    ENDIF.
+end-of-SELECTION.

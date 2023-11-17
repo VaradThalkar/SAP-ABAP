@@ -1,0 +1,13 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R114_ASSIGNMENTQ14
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R114_ASSIGNMENTQ14.
+
+PARAMETERS: gv_str TYPE string.
+
+DATA : len TYPE i.
+len = strlen( gv_str ).
+WRITE: / 'given string:',gv_str.
+WRITE: / 'Length of given string:',len.

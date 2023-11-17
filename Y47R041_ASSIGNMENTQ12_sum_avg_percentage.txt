@@ -1,0 +1,114 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R112_ASSIGNMENTQ12
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r112_assignmentq12.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+  PARAMETERS: gv_var1 TYPE i,
+              gv_var2 TYPE i,
+              gv_var3 TYPE i,
+              gv_var4 TYPE i,
+              gv_var5 TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2.
+  PARAMETERS: gv_sum  AS CHECKBOX,
+              gv_avg  AS CHECKBOX,
+              gv_prod AS CHECKBOX.
+SELECTION-SCREEN END OF BLOCK b2.
+
+AT SELECTION-SCREEN.
+  IF gv_var1 < 0 OR gv_var2 < 0 OR gv_var3 < 0 OR gv_var4 < 0 OR gv_var5 < 0.
+    MESSAGE 'Numbers should not be negative' TYPE 'E'.
+  ENDIF.
+
+START-OF-SELECTION.
+  DATA: lc_result1 TYPE i,
+        lc_result2 TYPE i,
+        lc_result3 TYPE i.
+
+  WRITE: / 'Input Number 1:',gv_var1 LEFT-JUSTIFIED.
+  WRITE: / 'Input Number 2:',gv_var2 LEFT-JUSTIFIED.
+  WRITE: / 'Input Number 3:',gv_var3 LEFT-JUSTIFIED.
+  WRITE: / 'Input Number 4:',gv_var4 LEFT-JUSTIFIED.
+  WRITE: / 'Input Number 5:',gv_var5 LEFT-JUSTIFIED.
+
+  IF gv_sum = abap_true.
+    PERFORM sum USING gv_var1 gv_var2 gv_var3 gv_var4 gv_var5 CHANGING lc_result1.
+    WRITE: / 'Sum is:', lc_result1 LEFT-JUSTIFIED.
+  ENDIF.
+  IF gv_avg = abap_true.
+    PERFORM avg USING gv_var1 gv_var2 gv_var3 gv_var4 gv_var5 CHANGING lc_result2.
+    WRITE: / 'Average is:', lc_result2 LEFT-JUSTIFIED.
+  ENDIF.
+  IF gv_prod = abap_true.
+    PERFORM prod USING gv_var1 gv_var2 gv_var3 gv_var4 gv_var5 CHANGING lc_result3.
+    WRITE: / 'Product is:', lc_result3 LEFT-JUSTIFIED.
+  ENDIF.
+*&---------------------------------------------------------------------*
+*& Form sum
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_VAR1
+*&      --> GV_VAR2
+*&      --> GV_VAR3
+*&      --> GV_VAR4
+*&      --> GV_VAR5
+*&      <-- LC_RESULT1
+*&---------------------------------------------------------------------*
+FORM sum  USING    p_gv_var1
+                   p_gv_var2
+                   p_gv_var3
+                   p_gv_var4
+                   p_gv_var5
+          CHANGING p_lc_result1.
+  p_lc_result1 = p_gv_var1 + p_gv_var2 + p_gv_var3 + p_gv_var4 + p_gv_var5.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form avg
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_VAR1
+*&      --> GV_VAR2
+*&      --> GV_VAR3
+*&      --> GV_VAR4
+*&      --> GV_VAR5
+*&      <-- LC_RESULT2
+*&---------------------------------------------------------------------*
+FORM avg  USING    p_gv_var1
+                   p_gv_var2
+                   p_gv_var3
+                   p_gv_var4
+                   p_gv_var5
+          CHANGING p_lc_result2.
+  PERFORM sum USING p_gv_var1 p_gv_var2 p_gv_var3 p_gv_var4 p_gv_var5 CHANGING lc_result1.
+  p_lc_result2 = lc_result1 / 5.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form per
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GV_VAR1
+*&      --> GV_VAR2
+*&      --> GV_VAR3
+*&      --> GV_VAR4
+*&      --> GV_VAR5
+*&      <-- LC_RESULT3
+*&---------------------------------------------------------------------*
+FORM prod  USING    p_gv_var1
+                   p_gv_var2
+                   p_gv_var3
+                   p_gv_var4
+                   p_gv_var5
+          CHANGING p_lc_result3.
+  p_lc_result3 = p_gv_var1 * p_gv_var2 * p_gv_var3 * p_gv_var4 * p_gv_var5.
+ENDFORM.
+
+TOP-OF-PAGE.
+WRITE: / 'Using CheckBoxes'.
+ULINE.

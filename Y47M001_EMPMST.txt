@@ -1,0 +1,328 @@
+*&---------------------------------------------------------------------*
+*& Modulpool Y47M001_EMPMST
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+PROGRAM y47m001_empmst.
+
+TABLES: y47m_empmst,y47c_deptmst,y47c_workloc, y47c_salhd.
+
+  DATA: lv_gender TYPE y47m_empmst-empnm.
+  DATA: lv_name TYPE y47m_empmst-empnm .
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+  SET PF-STATUS 'EMPMST100'.
+  SET TITLEBAR 'Employee Details'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+  DATA lv_empnm TYPE y47m_empmst-empnm.
+  SELECT SINGLE empnm FROM y47m_empmst  INTO lv_empnm
+    WHERE empno = y47m_empmst-empno.
+  IF sy-subrc = 0.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '001' WITH lv_empnm.
+  ENDIF.
+  CALL FUNCTION 'ENQUEUE_EY47M_EMPMST'
+    EXPORTING
+*     MODE_Y47M_EMPMST       = 'X'
+      mandt = sy-mandt
+      empno = y47m_empmst-empno
+*     X_EMPNO                = ' '
+*     _SCOPE                 = '2'
+*     _WAIT = ' '
+*     _COLLECT               = ' '
+*    EXCEPTIONS
+*     FOREIGN_LOCK           = 1
+*     SYSTEM_FAILURE         = 2
+*     OTHERS                 = 3
+    .
+
+  IF sy-subrc <> 0.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '006'.
+  ENDIF.
+
+  CALL SCREEN '0200'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit_0100 INPUT.
+  IF sy-ucomm = 'EXIT' OR sy-ucomm = 'CANC'.
+    LEAVE PROGRAM.
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0200 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0200 OUTPUT.
+  SET PF-STATUS 'EMPMST200'.
+  SET TITLEBAR '100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT_0200  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit_0200 INPUT.
+  IF sy-ucomm = 'EXIT' OR sy-ucomm = 'CANC'.
+    LEAVE PROGRAM.
+  ENDIF.
+  CASE sy-ucomm.
+    WHEN 'BACK'.
+*      CLEAR y47m_empmst.
+
+      CALL FUNCTION 'DEQUEUE_EY47M_EMPMST'
+      EXPORTING
+        mandt = sy-mandt
+        empno = y47m_empmst-empno.
+      LEAVE TO SCREEN '0100'.
+  ENDCASE.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0200  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE  user_command_0200 INPUT.
+
+
+  PERFORM check_data.
+  CASE sy-ucomm.
+    WHEN 'SAVE'.
+      PERFORM save_data.
+  ENDCASE.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form check_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM check_data .
+  PERFORM validation.
+  SELECT SINGLE deptnm INTO y47c_deptmst-deptnm
+    FROM y47c_deptmst
+    WHERE deptcd = y47m_empmst-deptcd.
+  IF sy-subrc <> 0.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '002'.
+  ENDIF.
+  SELECT SINGLE wldesc INTO y47c_workloc-wldesc
+    FROM y47c_workloc
+    WHERE wlcd = y47m_empmst-wlcd.
+  IF sy-subrc <> 0.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '003'.
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form save_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM save_data .
+  y47m_empmst-mandt = sy-mandt.
+  y47m_empmst-ernam = sy-uname.
+  y47m_empmst-erdat = sy-datum.
+  y47m_empmst-erzet = sy-uzeit.
+  INSERT y47m_empmst FROM y47m_empmst.
+  IF sy-subrc = 0.
+    COMMIT WORK.
+    MESSAGE ID 'Y47' TYPE 'S' NUMBER '004'.
+    CALL FUNCTION 'DEQUEUE_EY47M_EMPMST'
+      EXPORTING
+        mandt = sy-mandt
+        empno = y47m_empmst-empno.
+    LEAVE PROGRAM.
+
+  ELSE.
+    ROLLBACK WORK.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '005'.
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form validation
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM validation .
+*Validate name
+DATA: allowed_chars  TYPE string VALUE 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz',
+        lv_name_length TYPE i,
+        char           TYPE c,
+        valid          TYPE abap_bool,
+        lv_name        TYPE y47m_empmst-empnm.
+
+  lv_name = y47m_empmst-empnm.
+  lv_name_length = strlen( lv_name ).
+  DO lv_name_length  TIMES.
+    DATA(len1) = sy-index - 1.
+    char = lv_name+len1(1).
+    IF char CA allowed_Chars.
+      valid = abap_true.
+    ELSE.
+      valid = abap_false.
+      EXIT.
+    ENDIF.
+  ENDDO.
+  IF valid = abap_false.
+    MESSAGE id 'Y47' TYPE 'E' NUMBER '009'.
+  ENDIF.
+
+*Validate Gender
+
+  IF y47m_empmst-gender = 'M'.
+    lv_gender = 'MALE'.
+  ENDIF.
+  IF y47m_empmst-gender = 'F'.
+    lv_gender = 'FEMALE'.
+  ENDIF.
+  IF y47m_empmst-gender = 'O'.
+    lv_gender = 'OTHERS'.
+  ENDIF.
+
+*validate date
+  PERFORM validateDate.
+
+*Validate phone no
+  DATA: lv_phno TYPE y47m_empmst-phone_no.
+DATA: lv_phno1 TYPE String.
+DATA: lv_len TYPE i .
+lv_phno = y47m_empmst-phone_no.
+SHIFT lv_phno LEFT DELETING LEADING '0'.
+lv_phno1 = lv_phno .
+lv_len = STRLEN( lv_phno1 ).
+  IF lv_len = 10.
+  else.
+    MESSAGE id 'Y47' TYPE 'E'  NUMBER '010'.
+  endif.
+
+*Validate Email
+  PERFORM validateEmail.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form validateDate
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM validateDate .
+  DATA : lv_bdt TYPE d,
+         lv_joindt TYPE d,
+         lv_diff TYPE i.
+  lv_bdt = y47m_empmst-birthdt.
+  lv_joindt = y47m_empmst-joiningdt.
+
+  CALL FUNCTION 'HR_99S_INTERVAL_BETWEEN_DATES'
+    EXPORTING
+      begda   = lv_bdt
+      endda   = lv_joindt
+*     TAB_MODE                = ' '
+*     IV_LEAP_YEAR_MODE       =
+    IMPORTING
+*     DAYS    =
+*     C_WEEKS =
+*     C_MONTHS                =
+      c_years = lv_diff.
+*            WEEKS                   =
+*            MONTHS                  =
+*            YEARS                   =
+*            D_MONTHS                =
+*            MONTH_TAB               =
+  .
+*         At SELECTION-SCREEN.
+  IF y47m_empmst-joiningdt < y47m_empmst-birthdt.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '007'.
+  ELSEIF lv_diff < 18.
+    MESSAGE ID 'Y47' TYPE 'E' NUMBER '008'.
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form validateEmail
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM validateEmail .
+DATA: lv_email  TYPE y47m_empmst-email_id,
+        lv1_email TYPE string,
+        lv2_email TYPE string,
+        lv3_email TYPE string,
+        lv4_email TYPE string.
+
+  lv_email = y47m_empmst-email_id.
+
+  SPLIT lv_email AT '@' INTO lv1_email lv2_email.
+
+  IF lv1_email IS NOT INITIAL.
+    DATA: allowed_chars1  TYPE string VALUE 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+          allowed_chars2  TYPE string VALUE 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.',
+          char1           TYPE c,
+          valid1          TYPE abap_bool.
+
+    DO 1  TIMES.
+      IF sy-index < 2.
+        DATA(len3) = sy-index - 1.
+        char1 = lv1_email+len3(1).
+        IF char1 CA allowed_Chars1.
+          valid1 = abap_true.
+        ELSE.
+          valid1 = abap_false.
+          EXIT.
+        ENDIF.
+
+      ELSE.
+        IF sy-index > 1.
+          DATA(len4) = sy-index - 1.
+          char1 = lv1_email+len4(1).
+          IF char1 CA allowed_Chars2.
+            valid1 = abap_true.
+          ELSE.
+            valid1 = abap_false.
+            EXIT.
+          ENDIF.
+        ENDIF.
+      ENDIF.
+    ENDDO.
+
+    IF valid1 = abap_false.
+*
+      MESSAGE 'Invalid Email' TYPE 'E'.
+    ELSE.
+      IF lv1_email IS NOT INITIAL AND lv2_email IS NOT INITIAL.
+        SPLIT lv2_email AT '.' INTO lv3_email lv4_email.
+        IF lv3_email IS NOT INITIAL AND lv4_email IS NOT INITIAL.
+        ELSE.
+          MESSAGE ID 'Y47' TYPE 'E' NUMBER '011'.
+        ENDIF.
+      ELSE.
+        MESSAGE ID 'Y47' TYPE 'E' NUMBER '011'.
+      ENDIF.
+    ENDIF.
+  ELSE.
+    MESSAGE ID 'Y47' type 'E' Number '011'.
+  ENDIF.
+ENDFORM.

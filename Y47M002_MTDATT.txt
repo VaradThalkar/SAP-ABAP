@@ -1,0 +1,164 @@
+*&---------------------------------------------------------------------*
+*& Modulpool Y47M002_MTDATT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+PROGRAM Y47M002_MTDATT.
+
+TABLES: y47d_mtdatt,Y47S_MTDATT_ext.
+
+Controls: tc_mtdatt type TABLEVIEW USING SCREEN '0200'.
+
+data: gt_mtdatt_ext type table of y47s_mtdatt_ext,
+      gs_mtdatt_ext type y47s_mtdatt_ext.
+
+DATA: lt_mtdatt type TABLE OF y47d_mtdatt,
+      ls_mtdatt type y47d_mtdatt.
+
+DATA: gv_days_in_month TYPE /osp/dt_day.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+SET PF-STATUS 'MTDATT100'.
+SET TITLEBAR '100'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+
+  IF y47d_mtdatt-yymm > sy-datum+0(6).
+    MESSAGE id 'Y47' TYPE 'E' NUMBER '011'.
+  ENDIF.
+
+ DATA: lv_date type sy-datum.
+  CONCATENATE y47d_mtdatt-yymm '01' into lv_date.
+
+  CALL FUNCTION '/OSP/GET_DAYS_IN_MONTH'
+    EXPORTING
+      iv_date       = lv_date
+   IMPORTING
+     EV_DAYS       = gv_days_in_month.
+            .
+
+
+  SELECT * into table lt_mtdatt from y47d_mtdatt WHERE yymm = y47d_mtdatt-yymm.
+  LOOP AT lt_mtdatt into ls_mtdatt.
+    MOVE-CORRESPONDING ls_mtdatt to y47s_mtdatt_ext.
+    APPEND y47s_mtdatt_ext to gt_mtdatt_ext.
+  ENDLOOP.
+
+  call SCREEN '0200'.
+
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  EXIT_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE exit_0100 INPUT.
+if sy-ucomm = 'EXIT' or sy-ucomm = 'CANC'.
+  LEAVE PROGRAM.
+endif.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0200 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0200 OUTPUT.
+ SET PF-STATUS 'MTDATT_0200'.
+ SET TITLEBAR '100'.
+ CLEAr y47s_mtdatt_ext.
+ DELETE gt_mtdatt_ext WHERE empno = 0.
+ do 3 TIMES.
+   APPEND y47s_mtdatt_ext to gt_mtdatt_ext.
+ ENDDO.
+ DESCRIBE TABLE gt_mtdatt_ext lines tc_mtdatt-lines.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0200  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0200 INPUT.
+  data: lv_lines type i.
+  DESCRIBE TABLE gt_mtdatt_ext lines lv_lines.
+  CASE sy-ucomm.
+    WHEN 'SAVE'.
+      PERFORM save_data.
+    WHEN 'TOP'.
+      tc_mtdatt-top_line = 1.
+    WHEN 'BOT'.
+      DESCRIBE TABLE gt_mtdatt_ext LINES tc_mtdatt-top_line.
+    WHEN 'PREV'.
+      if tc_mtdatt-top_line >= 2.
+        tc_mtdatt-top_line  = tc_mtdatt-top_line - 1.
+        endif.
+    WHEN 'NEXT'.
+      if tc_mtdatt-top_line < lv_lines.
+        tc_mtdatt-top_line  = tc_mtdatt-top_line + 1.
+        endif.
+  ENDCASE.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  CHECK_DATA  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE check_data INPUT.
+if y47s_mtdatt_ext-empno is not Initial.
+select single empnm into y47s_mtdatt_ext-empnm from y47m_empmst WHERE empno = y47s_mtdatt_ext-empno.
+  if sy-subrc <> 0.
+    MESSAGE id 'Y47' type 'E' number '012'.
+  endif.
+  if y47s_mtdatt_ext-days_present is Initial.
+     MESSAGE id 'Y47' TYPE 'E' NUMBER '013'.
+  else.
+    if y47s_mtdatt_ext-days_present > gv_days_in_month.
+      MESSAGE id 'Y47' type 'E' NUMBER '015'.
+    endif.
+  endif.
+  READ TABLE gt_mtdatt_ext into gs_mtdatt_ext WITH key empno = y47s_mtdatt_ext-empno.
+  IF sy-subrc = 0 and tc_mtdatt-current_line <> sy-tabix.
+    MESSAGE id 'Y47' type 'E' NUMBER '014'.
+  ENDIF.
+  endif.
+modify gt_mtdatt_ext from y47s_mtdatt_ext INDEX tc_mtdatt-current_line.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form save_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM save_data .
+
+DELETE gt_mtdatt_ext where empno = 0.
+LOOP AT gt_mtdatt_ext into gs_mtdatt_ext.
+  ls_mtdatt-mandt = sy-mandt.
+  ls_mtdatt-yymm = y47d_mtdatt-yymm.
+  ls_mtdatt-empno = gs_mtdatt_ext-empno.
+  ls_mtdatt-days_present = gs_mtdatt_ext-days_present.
+  append ls_mtdatt to lt_mtdatt.
+ENDLOOP.
+
+delete from y47d_mtdatt where yymm = y47d_mtdatt-yymm.
+insert y47d_mtdatt from table lt_mtdatt.
+
+IF sy-subrc = 0.
+  COMMIT WORK.
+  MESSAGE id 'Y47' type 'S' NUMBER '016'.
+  LEAVE PROGRAM.
+else.
+  ROLLBACK WORK.
+  MESSAGE id 'Y47' type 'E' NUMBER '017'.
+ENDIF.
+ENDFORM.

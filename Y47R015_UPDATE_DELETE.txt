@@ -1,0 +1,50 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R015_UPDATE_DELETE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r015_update_delete.
+TABLES y47c_deptmst.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 with Frame title update_.
+  PARAMETERS: p_deptcd TYPE y47c_deptmst-deptcd,
+              p_deptnm TYPE y47c_deptmst-deptnm.
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2 with frame title delete_.
+  PARAMETERS:p_deptc1 TYPE y47c_deptmst-deptcd.
+SELECTION-SCREEN END OF BLOCK b2.
+
+DATA: gs_deptmst TYPE y47c_deptmst,
+      gt_deptmst TYPE TABLE OF y47c_deptmst.
+
+START-OF-SELECTION.
+
+
+  gs_deptmst-deptcd = p_deptcd.
+  gs_deptmst-deptnm = p_deptnm.
+
+*---Update
+  WRITE: / 'update statement' .
+  ULINE.
+  UPDATE y47c_deptmst FROM gs_deptmst.
+  IF sy-subrc = 0.
+    COMMIT WORK.
+    MESSAGE:  'Data Updated Successfully!' TYPE 'S'.
+  ELSE.
+    ROLLBACK WORK.
+    MESSAGE: 'Unable to Update Data' TYPE 'E'.
+  ENDIF.
+  CLEAR gs_deptmst.
+
+WRITE: / 'delete statement' .
+  ULINE.
+  DELETE from y47c_deptmst WHERE deptcd = p_deptc1.
+  IF sy-subrc = 0.
+    COMMIT WORK.
+    MESSAGE:  'Data deleted Successfully!' TYPE 'S'.
+  ELSE.
+    ROLLBACK WORK.
+    MESSAGE: 'Unable to delete Data' TYPE 'E'.
+  ENDIF.
+  CLEAR gs_deptmst.

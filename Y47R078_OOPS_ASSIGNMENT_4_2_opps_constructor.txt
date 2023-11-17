@@ -1,0 +1,28 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R078_OOPS_ASSIGNMENT_4_2
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R078_OOPS_ASSIGNMENT_4_2.
+
+
+CLASS lcl_parent DEFINITION.
+  PUBLIC SECTION.
+  METHODS : m1, constructor.
+ENDCLASS.
+
+CLASS lcl_parent IMPLEMENTATION.
+  METHOD m1 .
+    WRITE: 'This is Method M1'.
+    skip.
+  ENDMETHOD.
+  METHOD constructor .
+    me->m1( ).
+    WRITE: / 'This is Constructor'.
+    skip.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+data(lc_obj) = new lcl_parent( ).
+lc_obj->m1( ).

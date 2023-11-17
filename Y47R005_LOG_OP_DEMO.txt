@@ -1,0 +1,38 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R005_LOG_OP_DEMO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R005_LOG_OP_DEMO.
+
+TOP-OF-PAGE.
+WRITE: 'Logical Operators' COLOR 7.
+ULINE.
+
+PARAMETERS: lv_num1 TYPE i,
+            lv_num2 TYPE i.
+
+START-OF-SELECTION.
+WRITE: /'number1 =',lv_num1.
+WRITE: /'number2 =',lv_num2.
+*----OR
+uline.
+WRITE: /'OR Operator' color 1.
+IF lv_num1 Gt 0 OR lv_num2 Gt 0.
+  WRITE: /'Atleast 1 number is positive'.
+ENDIF.
+
+uline.
+*----AND
+WRITE: /'AND Operator' color 1.
+IF lv_num1 Gt 0 AND lv_num2 Gt 0.
+  WRITE: /'Both numbers are positive'.
+else.
+  WRITE: / 'Both numbers are not positive'.
+ENDIF.
+
+uline.
+WRITE: /'NOT Operator' color 1.
+IF not lv_num1 LE 0  .
+  WRITE: / lv_num1, ' is not less than zero'.
+ENDIF.

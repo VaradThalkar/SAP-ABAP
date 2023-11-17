@@ -1,0 +1,415 @@
+*&---------------------------------------------------------------------*
+*& Report Y47B003_SALES_ORDER_CREATE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47B003_SALES_ORDER_CREATE.
+*--------------------------sgp-----------------------------------------*
+*    MODULE    : Training
+*---------------------------------------------------------------------*
+*    Program   : Updates Tables ( X )
+*                Downloads data (   )
+*                Outputs List   (   )
+*
+*    Objective                  : Create Sales Order from file
+*                               :
+*    Functional Specifications  :
+*    Technical Spec No          :
+*    Functional Consultant Name : ??
+*    Date Created               : 10/03/2023
+*    Abap Consultant Name       : Varad Thalkar
+*    Client Name                : Training
+*    Project Name               : Training
+*    Implementer Company Name   : TechWit
+*---------------------------------------------------------------------*
+*    External Dependencies                                            *
+*---------------------------------------------------------------------*
+*                                                                     *
+*---------------------------------------------------------------------*
+*    Amendment History
+*---------------------------------------------------------------------*
+* Who        Change ID    Reason                                      *
+*                                                                     *
+* XXXXXXXXX  AADDMMYYYY Where XXXX = Developers Name................. *
+*            AA- Developers Initial ................................. *
+*            ........................................................ *
+*            ........................................................ *
+*---------------------------------------------------------------------*
+*                                                                     *
+*---------------------------------------------------------------------*
+*       Includes                                                      *
+*---------------------------------------------------------------------*
+*INCLUDE   :
+*---------------------------------------------------------------------*
+*       Table Declaration                                             *
+*---------------------------------------------------------------------*
+*TABLES   :
+*---------------------------------------------------------------------*
+*       Types                    Begin with TY_
+*---------------------------------------------------------------------*
+TYPES   : BEGIN OF ty_data,
+            orderno TYPE char10,
+            auart   TYPE vbak-auart,
+            kunnr   TYPE vbak-kunnr,
+            vkorg   TYPE vbak-vkorg,
+            vtweg   TYPE vbak-vtweg,
+            spart   TYPE vbak-spart,
+            matnr   TYPE vbap-matnr,
+            werks   TYPE vbap-werks,
+            kwmeng  TYPE vbap-kwmeng,
+            meins   TYPE vbap-meins.
+TYPES : END OF ty_data.
+*---------------------------------------------------------------------*
+*       Constants                Begin with CV_
+*---------------------------------------------------------------------*
+*CONSTANTS:
+*---------------------------------------------------------------------*
+*       Data                     Begin with gv_ Global Variable
+*                                           gs_ Global Structure
+*                                           gr_ Global Ranges
+*---------------------------------------------------------------------*
+DATA     : gs_data         TYPE ty_data,
+           gv_no_of_errors TYPE i.
+
+*---------------------------------------------------------------------*
+*---------------------------------------------------------------------*
+*       Infotypes                   ( HR Module Specific)
+*---------------------------------------------------------------------*
+*INFOTYPES :
+*---------------------------------------------------------------------*
+*       Internal tables          Begin with GT_ Global table
+*---------------------------------------------------------------------*
+DATA    : gt_data TYPE TABLE OF ty_data.
+*---------------------------------------------------------------------*
+*       Field Symbols            Begin with FS_
+*---------------------------------------------------------------------*
+*FIELD-SYMBOLS:
+*---------------------------------------------------------------------*
+*       Field Groups             Begin with FG_
+*---------------------------------------------------------------------*
+*FIELD-GROUPS :
+*---------------------------------------------------------------------*
+*       Insert
+*---------------------------------------------------------------------*
+*INSERT   :
+*---------------------------------------------------------------------*
+*       Controls                Begin with TC_ for table controls
+*---------------------------------------------------------------------*
+*CONTROLS :
+*---------------------------------------------------------------------*
+*       Input Parameters
+*              P_<FieldName>          Parameter
+*              S_<FieldName>          Select-options
+*              PR_<MeaningFullName>   Radio Button
+*              PC_<MeaningFullName>   Check_button
+*---------------------------------------------------------------------*
+SELECTION-SCREEN BEGIN OF BLOCK mblkx1 WITH FRAME TITLE TEXT-006.
+  PARAMETERS : p_filenm  LIKE rlgrap-filename  DEFAULT 'C:\Users\jitesh\Desktop\sales_order_data.txt'.
+SELECTION-SCREEN END OF BLOCK mblkx1.
+*---------------------------------------------------------------------*
+*       Initialisation
+*---------------------------------------------------------------------*
+*INITIALISATION   :
+*---------------------------------------------------------------------**
+*       At selection-screen
+*---------------------------------------------------------------------*
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_filenm.
+
+  DATA: lt_filetab TYPE filetable,
+        lt_rc      TYPE i.
+
+  CALL METHOD cl_gui_frontend_services=>file_open_dialog
+    CHANGING
+      file_table = lt_filetab
+      rc         = lt_rc
+    EXCEPTIONS
+      OTHERS     = 01.
+
+  CHECK lt_rc EQ 1.
+  READ TABLE lt_filetab INDEX 1 INTO p_filenm.
+
+************************************************************************
+*       S T A R T   O F   S E L E C T I O N
+************************************************************************
+START-OF-SELECTION.
+  PERFORM upload_data.
+
+  PERFORM check_data.
+
+END-OF-SELECTION.
+
+  IF gv_no_of_errors > 0.
+    WRITE :/01 'No of errors :',gv_no_of_errors.
+  ELSE.
+    PERFORM run_bapi.
+  ENDIF.
+************************************************************************
+*       E N D       O F   S E L E C T I O N
+************************************************************************
+*eject
+*-----------------------------------------------------------------
+*       At line selection
+*---------------------------------------------------------------------*
+*AT LINE-SELECTION.
+*---------------------------------------------------------------------*
+*       PF Key Processing
+*---------------------------------------------------------------------*
+*AT PFXX.
+*---------------------------------------------------------------------*
+*       User Command Processing
+*---------------------------------------------------------------------*
+*AT USER-COMMAND.
+*---------------------------------------------------------------------*
+*       Top Of Page
+*---------------------------------------------------------------------*
+*TOP-OF-PAGE.
+*---------------------------------------------------------------------*
+*       End Of Page
+*---------------------------------------------------------------------*
+*END-OF-PAGE.*eject.
+*----------------------------------------------------------------------*
+*       FORM <FormName>.
+*----------------------------------------------------------------------
+*       text
+*----------------------------------------------------------------------
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------
+*FORM <formname>. UV_<FieldName> Using Variable
+*                 US_<TableName> Using Structure
+*                 CV_<Fieldname> Changing Variable
+*                 CS_<TableName> Changing Structure
+*                 IT_<TableName> Tables
+*----------------------------------------------------------------------*
+* Local variables must begin with L, followed by the naming convention
+* for the corresponding variable type eg.
+*   LV_<FieldName>      Local Variable
+*   LT_<TabName>        Local Table
+*   LR_<FieldName>
+*----------------------------------------------------------------------
+*ENDFORM.*eject.*Any declarations for classes, methods and interfaces.
+***********************---------------------****************************
+*                      E N D  O F  A B A P
+***********************---------------------****************************
+*&---------------------------------------------------------------------*
+*& Form upload_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM upload_data .
+  DATA lv_filename TYPE string.
+  lv_filename = p_filenm.
+
+  CALL FUNCTION 'GUI_UPLOAD'
+    EXPORTING
+      filename                = lv_filename
+      filetype                = 'DAT'
+*     HAS_FIELD_SEPARATOR     = ' '
+*     HEADER_LENGTH           = 0
+*     READ_BY_LINE            = 'X'
+*     DAT_MODE                = ' '
+*     CODEPAGE                = ' '
+*     IGNORE_CERR             = ABAP_TRUE
+*     REPLACEMENT             = '#'
+*     CHECK_BOM               = ' '
+*     VIRUS_SCAN_PROFILE      =
+*     NO_AUTH_CHECK           = ' '
+* IMPORTING
+*     FILELENGTH              =
+*     HEADER                  =
+    TABLES
+      data_tab                = gt_data
+* CHANGING
+*     ISSCANPERFORMED         = ' '
+    EXCEPTIONS
+      file_open_error         = 1
+      file_read_error         = 2
+      no_batch                = 3
+      gui_refuse_filetransfer = 4
+      invalid_type            = 5
+      no_authority            = 6
+      unknown_error           = 7
+      bad_data_format         = 8
+      header_not_allowed      = 9
+      separator_not_allowed   = 10
+      header_too_long         = 11
+      unknown_dp_error        = 12
+      access_denied           = 13
+      dp_out_of_memory        = 14
+      disk_full               = 15
+      dp_timeout              = 16
+      OTHERS                  = 17.
+  .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form check_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM check_data .
+  DATA : ls_TVAK TYPE tvak,
+         lv_name1 type kna1-name1.
+  LOOP AT gt_data INTO gs_data.
+    CALL FUNCTION 'CONVERSION_EXIT_ALPHA_INPUT'
+      EXPORTING
+        input  = gs_data-kunnr
+      IMPORTING
+        output = gs_data-kunnr.
+    MODIFY gt_data FROM gs_data.
+
+    SELECT SINGLE * INTO ls_tvak
+       FROM tvak
+      WHERE auart = gs_data-auart.
+    IF sy-subrc <> 0.
+      WRITE : /01 gs_data-orderno,gs_data-auart,'Invalid Order Type'.
+      ADD 1 TO gv_no_of_errors.
+    ENDIF.
+
+    select single name1 into lv_name1
+      from kna1
+      where kunnr = gs_data-kunnr.
+    IF sy-subrc <> 0.
+      WRITE : /01 gs_data-orderno,gs_data-kunnr,'Invalid customer code'.
+      ADD 1 TO gv_no_of_errors.
+    ENDIF.
+
+  ENDLOOP.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form run_bapi
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM run_bapi .
+  DATA : ls_ORDER_HEADER_IN     TYPE  bapisdhd1,
+         ls_ORDER_HEADER_INX    TYPE  bapisdhd1x,
+         lt_RETURN              TYPE TABLE OF bapiret2,
+         lt_ORDER_ITEMS_IN      TYPE TABLE OF bapisditm,
+         lt_ORDER_ITEMS_INX     TYPE TABLE OF bapisditmx,
+         lt_ORDER_PARTNERS      TYPE TABLE OF bapiparnr,
+         lt_ORDER_SCHEDULES_IN  TYPE TABLE OF bapischdl,
+         lt_ORDER_SCHEDULES_INX TYPE TABLE OF bapischdlx,
+         lt_ORDER_CONDITIONS_IN TYPE TABLE OF bapicond,
+         ls_RETURN              TYPE bapiret2,
+         ls_ORDER_ITEMS_IN      TYPE bapisditm,
+         ls_ORDER_ITEMS_INX     TYPE bapisditmx,
+         ls_ORDER_PARTNERS      TYPE bapiparnr,
+         ls_ORDER_SCHEDULES_IN  TYPE bapischdl,
+         ls_ORDER_SCHEDULES_INX TYPE bapischdlx,
+         ls_ORDER_CONDITIONS_IN TYPE bapicond,
+         lv_order_no            TYPE bapivbeln-vbeln,
+         ls_data                TYPE ty_data.
+
+  DATA : lv_posnr TYPE vbap-posnr.
+  SORT gt_data BY orderno.
+  LOOP AT gt_data INTO gs_data.
+    MOVE-CORRESPONDING gs_data TO ls_data.
+    AT NEW orderno.
+      CLEAR : ls_ORDER_HEADER_IN , ls_ORDER_HEADER_INX  ,
+      lv_posnr,
+      lv_order_no,
+       ls_RETURN  ,
+       ls_ORDER_ITEMS_IN  ,
+       ls_ORDER_ITEMS_INX ,
+       ls_ORDER_PARTNERS  ,
+       ls_ORDER_SCHEDULES_IN  ,
+       ls_ORDER_SCHEDULES_INX ,
+       ls_ORDER_CONDITIONS_IN ,
+       lt_ORDER_ITEMS_IN  ,
+       lt_ORDER_ITEMS_INX ,
+       lt_ORDER_PARTNERS  ,
+       lt_ORDER_SCHEDULES_IN  ,
+       lt_ORDER_SCHEDULES_INX ,
+       lt_ORDER_CONDITIONS_IN .
+
+*     Fill Header Data
+      ls_ORDER_HEADER_IN-doc_type   = ls_data-auart.
+      ls_ORDER_HEADER_IN-sales_org  = ls_data-vkorg.
+      ls_ORDER_HEADER_IN-distr_chan = ls_data-vtweg.
+      ls_ORDER_HEADER_IN-division   = ls_data-spart.
+
+      ls_ORDER_HEADER_INX-doc_type = abap_true.
+      ls_ORDER_HEADER_INX-sales_org = abap_true.
+      ls_ORDER_HEADER_INX-distr_chan = abap_true.
+      ls_ORDER_HEADER_INX-division = abap_true.
+
+*   Fill Partner Data
+    ls_ORDER_PARTNERS-partn_role = 'AG'.
+    ls_ORDER_PARTNERS-partn_numb = ls_data-kunnr.
+    APPEND ls_ORDER_PARTNERS TO lt_ORDER_PARTNERS.
+
+
+    ENDAT.
+
+    ADD 10 TO lv_posnr.
+*   Fill Item Data
+    ls_ORDER_ITEMS_IN-itm_number = lv_posnr.
+    ls_ORDER_ITEMS_IN-material   = gs_data-matnr.
+    ls_ORDER_ITEMS_IN-plant      = gs_data-werks.
+    ls_ORDER_ITEMS_IN-target_qty = gs_data-kwmeng.
+    ls_ORDER_ITEMS_IN-target_qu     = gs_data-meins.
+    APPEND ls_ORDER_ITEMS_IN TO lt_ORDER_ITEMS_IN.
+
+    ls_ORDER_ITEMS_INx-itm_number = lv_posnr.
+    ls_ORDER_ITEMS_INx-material   = abap_true.
+    ls_ORDER_ITEMS_INx-plant      = abap_true.
+    ls_ORDER_ITEMS_INx-target_qty = abap_true.
+    ls_ORDER_ITEMS_INx-target_qu  = abap_true.
+    APPEND ls_ORDER_ITEMS_INx TO lt_ORDER_ITEMS_INx.
+
+
+    AT END OF orderno.
+      BREAK-POINT.
+      CALL FUNCTION 'BAPI_SALESORDER_CREATEFROMDAT2'
+        EXPORTING
+*         SALESDOCUMENTIN  =
+          order_header_in  = ls_order_header_in
+          order_header_inx = ls_order_header_inx
+*         SENDER           =
+*         BINARY_RELATIONSHIPTYPE       =
+*         INT_NUMBER_ASSIGNMENT         =
+*         BEHAVE_WHEN_ERROR             =
+*         LOGIC_SWITCH     =
+*         TESTRUN          =
+*         CONVERT          = ' '
+        IMPORTING
+          salesdocument    = lv_order_no
+        TABLES
+          return           = lt_return
+          order_items_in   = lt_order_items_in
+          order_items_inx  = lt_order_items_inx
+          order_partners   = lt_order_partners.
+*   ORDER_SCHEDULES_IN            =
+*   ORDER_SCHEDULES_INX           =
+      READ TABLE lt_return INTO ls_return
+       WITH KEY type = 'E'.
+      IF sy-subrc <> 0.
+        CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+          EXPORTING
+            wait = abap_true.
+        WRITE : /01 gs_data-orderno ,lv_order_no,'Order Sucessfully created'.
+      ELSE.
+        CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.
+        WRITE : /01 gs_data-orderno ,'Error while create order'.
+        LOOP AT lt_return INTO ls_return.
+          WRITE : /10 ls_return-type,ls_return-id,ls_return-number,ls_return-message+0(100).
+        ENDLOOP.
+      ENDIF.
+    ENDAT.
+
+  ENDLOOP.
+
+ENDFORM.

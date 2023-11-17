@@ -1,0 +1,29 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R107_ASSIGNMENTQ7
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R107_ASSIGNMENTQ7.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_var1 TYPE i.
+SELECTION-SCREEN END OF BLOCK b1.
+data: count type i.
+
+START-OF-SELECTION.
+WRITE: / 'Check Wheather Given Number is Prime or Not'.
+skip.
+WRITE: 'Input Number:', p_var1.
+ULINE.
+
+WHILE sy-index <= p_var1.
+IF p_var1 mod sy-index = 0.
+  count = count + 1.
+ENDIF.
+ENDWHILE.
+
+IF count > 2.
+  write: p_var1, 'is Not a Prime Number' color 6.
+else.
+  WRITE: / p_var1, 'is a Prime Number' color 5.
+ENDIF.

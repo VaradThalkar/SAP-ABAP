@@ -1,0 +1,404 @@
+*&---------------------------------------------------------------------*
+*& Report Y47B004_FINANCE_DOCUMENT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47B004_FINANCE_DOCUMENT.
+*--------------------------sgp-----------------------------------------*
+*    MODULE    : Training
+*---------------------------------------------------------------------*
+*    Program   : Updates Tables (   )    Downloads data (  )
+*                Outputs List   (   )
+*
+*    Objective                  : Create Finance document post
+*                               :
+*    Functional Specifications  :
+*    Technical Spec No          :
+*    Functional Consultant Name : Anuj Mhatre
+*    Date Created               : 5.10.2023
+*    Abap Consultant Name       : Varad Thalkar
+*    Client Name                : Training
+*    Project Name               : Training
+*    Implementer Company Name   : TechWit
+*---------------------------------------------------------------------*
+*    External Dependencies                                            *
+*---------------------------------------------------------------------*
+*                                                                     *
+*---------------------------------------------------------------------*
+*    Amendment History
+*---------------------------------------------------------------------*
+* Who        Change ID    Reason                                      *
+* ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯                                     *
+* XXXXXXXXX  AADDMMYYYY Where XXXX = Developers Name................. *
+*            AA- Developers Initial ................................. *
+*            ........................................................ *
+*            ........................................................ *
+*---------------------------------------------------------------------*
+*                                                                     *
+*---------------------------------------------------------------------*
+*       Includes                                                      *
+*---------------------------------------------------------------------*
+*INCLUDE   :
+*---------------------------------------------------------------------*
+*       Table Declaration                                             *
+*---------------------------------------------------------------------*
+*TABLES   :
+*---------------------------------------------------------------------*
+*       Types                    Begin with TY_
+
+TYPES : BEGIN OF ty_bkpf_data,
+*         documentheader
+          comp_code   TYPE bukrs,   "1000
+          doc_type    TYPE blart,   "SA
+          doc_date    TYPE bldat,   "sy-datum
+
+*         account gl
+          gl_account1 TYPE hkont,                           "3000001
+          gl_account2 TYPE hkont,                           "7000001
+          costcenter  TYPE kostl,   "ct
+
+*         currencyamount
+          amt_doccur  TYPE bapidoccur,
+          currency    TYPE waers.
+
+TYPES : END OF ty_bkpf_data.
+*TYPES : BEGIN OF ty_bkpf_data,
+*          bukrs  TYPE char4,
+*          budat  TYPE char4,
+*          blart  TYPE char4.
+*TYPES : END OF ty_bkpf_data.
+
+
+
+*---------------------------------------------------------------------*
+*TYPES   :
+*---------------------------------------------------------------------*
+*       Constants                Begin with CV_
+*---------------------------------------------------------------------*
+*CONSTANTS:
+*---------------------------------------------------------------------*
+*       Data                     Begin with gv_ Global Variable
+*                                           gs_ Global Structure
+*                                           gr_ Global Ranges
+*---------------------------------------------------------------------*
+
+*DATA     :
+
+DATA     : gs_fin          TYPE ty_bkpf_data,
+           gv_no_of_errors TYPE i.
+
+*---------------------------------------------------------------------*
+*---------------------------------------------------------------------*
+*       Infotypes                   ( HR Module Specific)
+*---------------------------------------------------------------------*
+*INFOTYPES :
+*---------------------------------------------------------------------*
+*       Internal tables          Begin with GT_ Global table
+*---------------------------------------------------------------------*
+*DATA    :
+
+DATA    : gt_fin TYPE TABLE OF ty_bkpf_data.
+
+*---------------------------------------------------------------------*
+*       Field Symbols            Begin with FS_
+*---------------------------------------------------------------------*
+*FIELD-SYMBOLS:
+*---------------------------------------------------------------------*
+*       Field Groups             Begin with FG_
+*---------------------------------------------------------------------*
+*FIELD-GROUPS :
+*---------------------------------------------------------------------*
+*       Insert
+*---------------------------------------------------------------------*
+*INSERT   :
+*---------------------------------------------------------------------*
+*       Controls                Begin with TC_ for table controls
+*---------------------------------------------------------------------*
+*CONTROLS :
+*---------------------------------------------------------------------*
+*       Input Parameters
+*              P_<FieldName>          Parameter
+*              S_<FieldName>          Select-options
+*              PR_<MeaningFullName>   Radio Button
+*              PC_<MeaningFullName>   Check_button
+*---------------------------------------------------------------------*
+*SELECT-OPTIONS :
+*PARAMETERS     :
+
+SELECTION-SCREEN BEGIN OF BLOCK mblkx1 WITH FRAME TITLE TEXT-006.
+  PARAMETERS : p_filenm  LIKE rlgrap-filename  DEFAULT 'C:\Users\varad\Desktop\FinanceData1.txt'.
+SELECTION-SCREEN END OF BLOCK mblkx1.
+*---------------------------------------------------------------------*
+*       Initialisation
+*---------------------------------------------------------------------*
+*INITIALISATION   :
+*---------------------------------------------------------------------**
+*       At selection-screen
+*---------------------------------------------------------------------*
+*AT SELECTION-SCREEN.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_filenm.
+
+  DATA: lt_filetab TYPE filetable,
+        lt_rc      TYPE i.
+
+  CALL METHOD cl_gui_frontend_services=>file_open_dialog
+    CHANGING
+      file_table = lt_filetab
+      rc         = lt_rc
+    EXCEPTIONS
+      OTHERS     = 01.
+
+  CHECK lt_rc EQ 1.
+  READ TABLE lt_filetab INDEX 1 INTO p_filenm.
+
+************************************************************************
+*       S T A R T   O F   S E L E C T I O N
+************************************************************************
+START-OF-SELECTION.
+  PERFORM upload_data.
+
+  PERFORM check_Data.
+
+END-OF-SELECTION.
+  IF gv_no_of_errors > 0.
+    WRITE :/01 'No of errors :',gv_no_of_errors.
+  ELSE.
+    PERFORM run_bapi.
+  ENDIF.
+
+
+************************************************************************
+*       E N D       O F   S E L E C T I O N
+************************************************************************
+*eject
+*-----------------------------------------------------------------
+*       At line selection
+*---------------------------------------------------------------------*
+*AT LINE-SELECTION.
+*---------------------------------------------------------------------*
+*       PF Key Processing
+*---------------------------------------------------------------------*
+*AT PFXX.
+*---------------------------------------------------------------------*
+*       User Command Processing
+*---------------------------------------------------------------------*
+*AT USER-COMMAND.
+*---------------------------------------------------------------------*
+*       Top Of Page
+*---------------------------------------------------------------------*
+*TOP-OF-PAGE.
+*---------------------------------------------------------------------*
+*       End Of Page
+*---------------------------------------------------------------------*
+*END-OF-PAGE.*eject.
+*----------------------------------------------------------------------*
+*       FORM <FormName>.
+*----------------------------------------------------------------------
+*       text
+*----------------------------------------------------------------------
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------
+*FORM <formname>. UV_<FieldName> Using Variable
+*                 US_<TableName> Using Structure
+*                 CV_<Fieldname> Changing Variable
+*                 CS_<TableName> Changing Structure
+*                 IT_<TableName> Tables
+*----------------------------------------------------------------------*
+* Local variables must begin with L, followed by the naming convention
+* for the corresponding variable type eg.
+*   LV_<FieldName>      Local Variable
+*   LT_<TabName>        Local Table
+*   LR_<FieldName>
+*----------------------------------------------------------------------
+*ENDFORM.*eject.*Any declarations for classes, methods and interfaces.
+***********************---------------------****************************
+*                      E N D  O F  A B A P
+***********************---------------------****************************
+
+
+
+*&---------------------------------------------------------------------*
+*& Form upload_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM upload_data .
+  DATA lv_filename TYPE string.
+  lv_filename = p_filenm.
+
+  CALL FUNCTION 'GUI_UPLOAD'
+    EXPORTING
+      filename                = lv_filename
+      filetype                = 'DAT'
+*     HAS_FIELD_SEPARATOR     = ' '
+*     HEADER_LENGTH           = 0
+*     READ_BY_LINE            = 'X'
+*     DAT_MODE                = ' '
+*     CODEPAGE                = ' '
+*     IGNORE_CERR             = ABAP_TRUE
+*     REPLACEMENT             = '#'
+*     CHECK_BOM               = ' '
+*     VIRUS_SCAN_PROFILE      =
+*     NO_AUTH_CHECK           = ' '
+* IMPORTING
+*     FILELENGTH              =
+*     HEADER                  =
+    TABLES
+      data_tab                = gt_fin
+* CHANGING
+*     ISSCANPERFORMED         = ' '
+    EXCEPTIONS
+      file_open_error         = 1
+      file_read_error         = 2
+      no_batch                = 3
+      gui_refuse_filetransfer = 4
+      invalid_type            = 5
+      no_authority            = 6
+      unknown_error           = 7
+      bad_data_format         = 8
+      header_not_allowed      = 9
+      separator_not_allowed   = 10
+      header_too_long         = 11
+      unknown_dp_error        = 12
+      access_denied           = 13
+      dp_out_of_memory        = 14
+      disk_full               = 15
+      dp_timeout              = 16
+      OTHERS                  = 17.
+  .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form check_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM check_data .
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form run_bapi
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM run_bapi .
+
+
+
+ DATA : gs_headerdata     TYPE bapiache09,
+         gs_obj_type       TYPE  bapiache09-obj_type,
+         gs_obj_key        TYPE  bapiache09-obj_key,
+         gs_obj_sys        TYPE  bapiache09-obj_sys,
+         gt_accountgl      TYPE TABLE OF bapiacgl09,
+         gs_accountgl      TYPE bapiacgl09,
+         gt_currencyamount TYPE TABLE OF bapiaccr09,
+         gs_currencyamount TYPE bapiaccr09,
+         gt_return         TYPE TABLE OF bapiret2,
+         gs_return         TYPE bapiret2,
+         lv_item_no        TYPE i VALUE 1.
+
+
+  gs_headerdata-comp_code = gs_fin-comp_code.
+  gs_headerdata-doc_date  = sy-datum.
+  gs_headerdata-pstng_date = gs_fin-doc_date.
+  gs_headerdata-doc_type  = gs_fin-doc_type.
+  gs_headerdata-username = sy-uname.
+  gs_headerdata-ref_doc_no = 'Varad Thalkar'.
+
+  LOOP AT gt_fin INTO gs_fin.
+    CLEAR gs_accountgl.
+    gs_accountgl-itemno_acc = lv_item_no.
+    gs_accountgl-comp_code = gs_fin-comp_code.
+    gs_accountgl-gl_account = gs_fin-gl_account1.
+    gs_accountgl-costcenter = gs_fin-costcenter.
+    gs_accountgl-pstng_date  = gs_fin-doc_date.
+    gs_accountgl-item_text   = 'Line item text1'.
+    APPEND gs_accountgl TO gt_accountgl.
+
+    CLEAR gs_currencyamount.
+    gs_currencyamount-itemno_acc = lv_item_no.
+    gs_currencyamount-curr_type  = '00'.
+    gs_currencyamount-currency   = gs_fin-currency.
+    gs_currencyamount-amt_doccur = gs_fin-amt_doccur.
+    APPEND gs_currencyamount TO gt_currencyamount.
+
+
+    lv_item_no = lv_item_no + 1.
+
+    CLEAR gs_accountgl.
+    gs_accountgl-itemno_acc = lv_item_no.
+    gs_accountgl-comp_code = gs_fin-comp_code.
+    gs_accountgl-gl_account = gs_fin-gl_account2.
+    gs_accountgl-value_date = gs_fin-doc_date.
+    gs_accountgl-pstng_date  = gs_fin-doc_date.
+    gs_accountgl-item_text   = 'Line item text2'.
+    APPEND gs_accountgl TO gt_accountgl.
+
+    CLEAR gs_currencyamount.
+    gs_currencyamount-itemno_acc = lv_item_no.
+    gs_currencyamount-curr_type  = '00'.
+    gs_currencyamount-currency   = gs_fin-currency.
+    gs_currencyamount-amt_doccur = gs_fin-amt_doccur * -1.
+    APPEND gs_currencyamount TO gt_currencyamount.
+
+    lv_item_no = lv_item_no + 1.
+  ENDLOOP.
+
+  CALL FUNCTION 'BAPI_ACC_DOCUMENT_POST'
+    EXPORTING
+      documentheader = gs_headerdata
+*     CUSTOMERCPD    =
+*     CONTRACTHEADER =
+    IMPORTING
+      obj_type       = gs_obj_type
+      obj_key        = gs_obj_key
+      obj_sys        = gs_obj_sys
+    TABLES
+      accountgl      = gt_accountgl
+*     ACCOUNTRECEIVABLE       =
+*     ACCOUNTPAYABLE =
+*     ACCOUNTTAX     =
+      currencyamount = gt_currencyamount
+*     CRITERIA       =
+*     VALUEFIELD     =
+*     EXTENSION1     =
+      return         = gt_return.
+*   PAYMENTCARD             =
+*   CONTRACTITEM            =
+*   EXTENSION2              =
+*   REALESTATE              =
+*   ACCOUNTWT               =
+  .
+
+  READ TABLE gt_return INTO gs_return
+   WITH KEY type = 'S'
+            id = 'RW'
+            number = '605'.
+  IF sy-subrc = 0.
+    CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+      EXPORTING
+        wait = abap_true.
+    WRITE : /01 'Document successfully posted',gs_obj_key.
+  ELSE.
+    CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'
+*   IMPORTING
+*     RETURN        =
+      .
+    WRITE /01 'Error while posting document' COLOR COL_NEGATIVE.
+    LOOP  AT gt_return INTO gs_return.
+    ENDLOOP.
+  ENDIF.
+ENDFORM.

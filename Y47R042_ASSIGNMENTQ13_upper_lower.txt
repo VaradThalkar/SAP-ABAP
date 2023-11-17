@@ -1,0 +1,14 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R113_ASSIGNMENTQ13
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R113_ASSIGNMENTQ13.
+
+PARAMETERS: gv_str TYPE string.
+
+WRITE: / 'Given String', gv_str COLOR 3.
+TRANSLATE gv_str TO UPPER CASE.
+WRITE: / 'UpperCase string', gv_str COLOR 1.
+TRANSLATE gv_str TO LOWER CASE.
+WRITE: / 'LowerCase string', gv_str COLOR 2.

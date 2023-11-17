@@ -1,0 +1,25 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R123_ASSIGNMENTQ23
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R123_ASSIGNMENTQ23.
+
+SELECTION-SCREEN begin of block b1 WITH FRAME TITLE text-001.
+  PARAMETERS: p_var type i.
+  SELECTION-SCREEN end of block b1.
+  DATA: remainder TYPE string,
+        quotient  TYPE i,
+        temp      TYPE i,
+        result    TYPE string.
+
+  quotient = p_var.
+
+  WHILE quotient > 0.
+    remainder = quotient MOD 2.
+    CONCATENATE remainder result INTO result.
+    quotient = quotient div 2.
+  ENDWHILE.
+
+WRITE: / 'Decimal Number:', p_var,
+        / 'Binary Equivalent:', result.

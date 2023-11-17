@@ -1,0 +1,28 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R127_ASSIGNMENTQ27
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R127_ASSIGNMENTQ27.
+
+SELECTION-SCREEN BEGIN OF BLOCK b WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_var  TYPE string,
+              p_word TYPE string.
+SELECTION-SCREEN END OF BLOCK b.
+
+DATA: gv_count TYPE i VALUE 0,
+      gv_len   TYPE i,
+      gt_str   TYPE TABLE OF string,
+      words    TYPE string.
+
+START-OF-SELECTION.
+*-------------------------------------------------------------------------
+  WRITE : 'Input String : ', p_var, /, / 'Find count for word : ',p_word.
+  SKIP.
+  ULINE.
+
+  FIND ALL OCCURRENCES OF p_word IN p_var MATCH COUNT gv_count.
+
+  WRITE: p_word, 'is appears: ', gv_count , 'times in Given String'.
+
+*---------------------------------------------------------------------------

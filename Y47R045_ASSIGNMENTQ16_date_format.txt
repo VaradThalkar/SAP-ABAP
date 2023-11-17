@@ -1,0 +1,18 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R116_ASSIGNMENTQ16
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R116_ASSIGNMENTQ16.
+
+PARAMETERS: gv_date TYPE d.
+
+write: 'Input Date: ', gv_date.
+data(dd) = gv_date+0(2).
+data(mm) = gv_date+2(2).
+data(yyyy) = gv_date+4(4).
+write: / 'Proper Format =>',gv_date DD/MM/YYYY.
+
+write: / 'Day: ',dd.
+write: / 'Month: ',dd.
+write: / 'Year: ',dd.

@@ -1,0 +1,519 @@
+*&---------------------------------------------------------------------*
+*& Report y47MR_INTERACTIVEE_ALV_REPORT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT y47r018_alv_demo1.
+TABLES : y47m_empmst , y47m_salmst , y47c_salhd .
+
+TYPE-POOLS: slis .
+
+TYPES: BEGIN OF ty_y47m_empmst,
+         empno     TYPE y47m_empmst-empno,
+         empnm     TYPE y47m_empmst-empnm,
+         gender    TYPE y47m_empmst-gender,
+         birthdt   TYPE y47m_empmst-birthdt,
+         joiningdt TYPE y47m_empmst-joiningdt,
+         phone_no  TYPE y47m_empmst-phone_no,
+         email_id  TYPE y47m_empmst-email_id,
+         deptcd    TYPE y47m_empmst-deptcd,
+
+       END OF ty_y47m_empmst.
+
+TYPES: BEGIN OF ty_y47d_saltrn,
+         empno  TYPE y47d_saltrn-empno,
+         yymm   TYPE y47d_saltrn-yymm,
+         salhd  TYPE y47d_saltrn-salhd,
+         salary TYPE y47d_saltrn-salary,
+       END OF ty_y47d_saltrn.
+
+TYPES: BEGIN OF ty_y47c_salhd,
+         salhd  TYPE y47c_salhd-salhd,
+         descr TYPE y47c_salhd-descr,
+       END OF ty_y47c_salhd.
+
+
+DATA: gs_empmst  TYPE ty_y47m_empmst,
+      gt_empmst  TYPE TABLE OF ty_y47m_empmst,
+      gt_saltran TYPE TABLE OF ty_y47d_saltrn,
+      gt_salhd TYPE TABLE of  ty_y47c_salhd.
+
+
+DATA : gt_fieldcat   TYPE slis_t_fieldcat_alv,
+       gt_fieldcat1  TYPE slis_t_fieldcat_alv,
+       gt_fieldcat2  TYPE slis_t_fieldcat_alv,
+       gs_fieldcat   TYPE slis_fieldcat_alv,
+       wc_layout     TYPE slis_layout_alv,
+       wa_listheader TYPE slis_listheader,
+       it_listheader TYPE slis_t_listheader,
+       wa_listheader1 TYPE slis_listheader,
+       it_listheader1 TYPE slis_t_listheader,
+       wa_listheader2 TYPE slis_listheader,
+       it_listheader2 TYPE slis_t_listheader..
+
+
+*TOP-OF-PAGE.
+*WRITE: / 'ALV REPORT TO DISPLAY DATA OF EMPMST TABLE' .
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  SELECT-OPTIONS: s_empno FOR y47m_empmst-empno .
+SELECTION-SCREEN END OF BLOCK b1 .
+
+START-OF-SELECTION .
+
+  PERFORM get_data .
+  PERFORM field_catlog .
+  PERFORM top .
+  PERFORM build_alv_header.
+  PERFORM Display_ALV .
+
+
+END-OF-SELECTION .
+*&---------------------------------------------------------------------*
+*& Form get_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM get_data .
+
+  SELECT empno empnm
+    gender
+    birthdt
+    joiningdt
+    phone_no
+    email_id
+    deptcd
+
+    FROM y47m_empmst
+    INTO TABLE gt_empmst
+    WHERE empno IN s_empno .
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form FIELD_CATLOG
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM field_catlog .
+  DATA : lv_col TYPE i.
+  CLEAR lv_col.
+
+  lv_col = lv_col + 1.
+
+  gs_fieldcat-col_pos = lv_col .
+  gs_fieldcat-fieldname = 'empno' .
+  gs_fieldcat-tabname = 'GT_EMPMST' .
+  gs_fieldcat-seltext_m = 'Employee Number' .
+*gs_fieldcat-outputlen = 10 .
+  wc_layout-colwidth_optimize = 'X' .
+
+  APPEND gs_fieldcat TO gt_fieldcat .
+  CLEAR gs_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  gs_fieldcat-col_pos = lv_col .
+  gs_fieldcat-fieldname = 'empnm' .
+  gs_fieldcat-tabname = 'GT_EMPMST' .
+  gs_fieldcat-seltext_m = 'Employee Name' .
+*gs_fieldcat-outputlen = 10 .
+  wc_layout-colwidth_optimize = 'X' .
+
+  APPEND gs_fieldcat TO gt_fieldcat .
+  CLEAR gs_fieldcat .
+
+
+  lv_col = lv_col + 1.
+
+  gs_fieldcat-col_pos = lv_col .
+  gs_fieldcat-fieldname = 'birthdt' .
+  gs_fieldcat-tabname = 'GT_EMPMST' .
+  gs_fieldcat-seltext_m = 'Employee Birth Date' .
+  wc_layout-colwidth_optimize = 'X' .
+
+  APPEND gs_fieldcat TO gt_fieldcat .
+  CLEAR gs_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  gs_fieldcat-col_pos = lv_col .
+  gs_fieldcat-fieldname = 'joiningdt' .
+  gs_fieldcat-tabname = 'GT_EMPMST' .
+  gs_fieldcat-seltext_m = 'Employee Join Date' .
+  wc_layout-colwidth_optimize = 'X' .
+
+  APPEND gs_fieldcat TO gt_fieldcat .
+  CLEAR gs_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  gs_fieldcat-col_pos = lv_col .
+  gs_fieldcat-fieldname = 'phone_no' .
+  gs_fieldcat-tabname = 'GT_EMPMST' .
+  gs_fieldcat-seltext_m = 'Employee Phone No' .
+  wc_layout-colwidth_optimize = 'X' .
+
+  APPEND gs_fieldcat TO gt_fieldcat .
+  CLEAR gs_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  gs_fieldcat-col_pos = lv_col .
+  gs_fieldcat-fieldname = 'email_id' .
+  gs_fieldcat-tabname = 'GT_EMPMST' .
+  gs_fieldcat-seltext_m = 'Employee Email ID' .
+  wc_layout-colwidth_optimize = 'X' .
+
+  APPEND gs_fieldcat TO gt_fieldcat .
+  CLEAR gs_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  gs_fieldcat-col_pos = lv_col .
+  gs_fieldcat-fieldname = 'deptcd' .
+  gs_fieldcat-tabname = 'GT_EMPMST' .
+  gs_fieldcat-seltext_m = 'Employee Email ID' .
+  wc_layout-colwidth_optimize = 'X' .
+
+  APPEND gs_fieldcat TO gt_fieldcat .
+  CLEAR gs_fieldcat .
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form Display_ALV
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM Display_ALV .
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program      = sy-repid
+      i_callback_top_of_page  = 'TOP'
+      i_callback_user_command = 'USER_COMMAND'
+      it_fieldcat             = gt_fieldcat
+      is_layout               = wc_layout
+    TABLES
+      t_outtab                = gt_empmst
+    EXCEPTIONS
+      program_error           = 1
+      OTHERS                  = 2.
+  IF sy-subrc <> 0.
+
+  ENDIF.
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form build_alv_header
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM build_alv_header .
+
+CLEAR it_listheader.
+*Type H is used to display headers i.e. big font
+  wa_listheader-typ  = 'H'.
+  wa_listheader-info ='Employee Master Details'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+*  Type S is used to display key and value pairs
+  wa_listheader-typ = 'S'.
+  wa_listheader-key = 'Date :' .
+  CONCATENATE  sy-datum+6(2)
+               sy-datum+4(2)
+               sy-datum(4)
+               INTO wa_listheader-info
+               SEPARATED BY '/'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+*  Type A is used to display italic font
+  wa_listheader-typ = 'A'.
+  wa_listheader-info ='SAP ALV Report'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+ENDFORM.
+
+FORM top.
+
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = it_listheader.
+
+ENDFORM.
+
+FORM user_command USING uv_comm LIKE sy-ucomm
+                        us_selfield TYPE slis_selfield .
+  CASE uv_comm.
+    WHEN '&IC1'.
+      SELECT empno yymm salhd salary  FROM y47d_saltrn INTO TABLE gt_saltran "' @data(lt_tran)
+        WHERE empno  = us_selfield-value.
+
+      IF sy-subrc = 0 .
+        PERFORM fieldcat2.
+        PERFORM build_aLV_header1.
+        PERFORM display_layout2.
+
+      ENDIF.
+
+  ENDCASE.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form fieldcat2
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM fieldcat2 .
+  DATA: ls_fieldcat   TYPE slis_fieldcat_alv .
+  DATA : lv_col TYPE i.
+  CLEAR lv_col.
+
+  lv_col = lv_col + 1.
+
+  ls_fieldcat-col_pos = lv_col .
+  ls_fieldcat-fieldname = 'empno' .
+  ls_fieldcat-tabname = 'GT_SAlTRAN' .
+  ls_fieldcat-seltext_m = 'Employee Number' .
+  ls_fieldcat-outputlen = 10 .
+  " w,c_layout-colwidth_optimize = 'X' .
+
+  APPEND ls_fieldcat TO gt_fieldcat1 .
+  CLEAR ls_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  ls_fieldcat-col_pos = lv_col .
+  ls_fieldcat-fieldname = 'yymm' .
+  ls_fieldcat-tabname = 'GT_SAlTRAN' .
+  ls_fieldcat-seltext_m = 'Transaction Date' .
+  ls_fieldcat-outputlen = 10 .
+  " w,c_layout-colwidth_optimize = 'X' .
+
+  APPEND ls_fieldcat TO gt_fieldcat1 .
+  CLEAR ls_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  ls_fieldcat-col_pos = lv_col .
+  ls_fieldcat-fieldname = 'salhd' .
+  ls_fieldcat-tabname = 'GT_SAlTRAN' .
+  ls_fieldcat-seltext_m = 'Salary Header' .
+  ls_fieldcat-outputlen = 10 .
+  " w,c_layout-colwidth_optimize = 'X' .
+
+  APPEND ls_fieldcat TO gt_fieldcat1 .
+  CLEAR ls_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  ls_fieldcat-col_pos = lv_col .
+  ls_fieldcat-fieldname = 'salary' .
+  ls_fieldcat-tabname = 'GT_SAlTRAN' .
+  ls_fieldcat-seltext_m = 'Salary' .
+  ls_fieldcat-outputlen = 10 .
+  " w,c_layout-colwidth_optimize = 'X' .
+
+  APPEND ls_fieldcat TO gt_fieldcat1 .
+  CLEAR ls_fieldcat .
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form display_layout2
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM display_layout2 .
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program      = sy-repid
+      i_callback_top_of_page  = 'TOP1'
+      i_callback_user_command = 'USER_COMMAND1'
+      it_fieldcat             = gt_fieldcat1
+"     is_layout               = wc_layout
+    TABLES
+      t_outtab                = gt_saltran
+    EXCEPTIONS
+      program_error           = 1
+      OTHERS                  = 2.
+  IF sy-subrc <> 0.
+
+  ENDIF.
+ENDFORM.
+
+FORM build_alv_header1 .
+
+CLEAR it_listheader1.
+*Type H is used to display headers i.e. big font
+  wa_listheader1-typ  = 'H'.
+  wa_listheader1-info ='SAlary master Details'.
+  APPEND wa_listheader1 TO it_listheader1.
+  CLEAR wa_listheader1.
+
+*  Type S is used to display key and value pairs
+  wa_listheader1-typ = 'S'.
+  wa_listheader1-key = 'Date :' .
+  CONCATENATE  sy-datum+6(2)
+               sy-datum+4(2)
+               sy-datum(4)
+               INTO wa_listheader1-info
+               SEPARATED BY '/'.
+  APPEND wa_listheader1 TO it_listheader1.
+  CLEAR wa_listheader1.
+
+*  Type A is used to display italic font
+  wa_listheader1-typ = 'A'.
+  wa_listheader1-info ='SAP ALV Report'.
+  APPEND wa_listheader1 TO it_listheader1.
+  CLEAR wa_listheader1.
+
+ENDFORM.
+
+FORM top1.
+
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = it_listheader1.
+
+ENDFORM.
+
+
+FORM user_command1 USING uv_comm LIKE sy-ucomm
+                        us_selfield TYPE slis_selfield .
+  CASE uv_comm.
+    WHEN '&IC1'.
+      SELECT salhd descr  FROM y47c_salhd INTO TABLE gt_salhd "' @data(lt_tran)
+        WHERE salhd  = us_selfield-value.
+
+      IF sy-subrc = 0 .
+        PERFORM fieldcat3.
+        PERFORM build_alv_header2.
+        PERFORM display_layout3.
+      ENDIF.
+
+  ENDCASE.
+
+ENDFORM.
+
+
+*&---------------------------------------------------------------------*
+*& Form fieldcat3
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM fieldcat3.
+  DATA: ls_fieldcat   TYPE slis_fieldcat_alv .
+  DATA : lv_col TYPE i.
+  CLEAR lv_col.
+
+  lv_col = lv_col + 1.
+
+  ls_fieldcat-col_pos = lv_col .
+  ls_fieldcat-fieldname = 'salhd' .
+  ls_fieldcat-tabname = 'GT_SAlhD' .
+  ls_fieldcat-seltext_m = 'Salary Header' .
+  ls_fieldcat-outputlen = 10 .
+  " w,c_layout-colwidth_optimize = 'X' .
+
+  APPEND ls_fieldcat TO gt_fieldcat2 .
+  CLEAR ls_fieldcat .
+
+  lv_col = lv_col + 1.
+
+  ls_fieldcat-col_pos = lv_col .
+  ls_fieldcat-fieldname = 'descr' .
+  ls_fieldcat-tabname = 'GT_SAlHD' .
+  ls_fieldcat-seltext_m = 'Description' .
+  ls_fieldcat-outputlen = 10 .
+  " w,c_layout-colwidth_optimize = 'X' .
+
+  APPEND ls_fieldcat TO gt_fieldcat2 .
+  CLEAR ls_fieldcat .
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form display_layout2
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM display_layout3 .
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program      = sy-repid
+      i_callback_top_of_page  = 'TOP2'
+      i_callback_user_command = 'USER_COMMAND'
+      it_fieldcat             = gt_fieldcat2
+"     is_layout               = wc_layout
+    TABLES
+      t_outtab                = gt_salhd
+    EXCEPTIONS
+      program_error           = 1
+      OTHERS                  = 2.
+  IF sy-subrc <> 0.
+CLEAR gt_fieldcat2.
+  ENDIF.
+ENDFORM.
+
+FORM build_alv_header2.
+CLEAR it_listheader2.
+
+*Type H is used to display headers i.e. big font
+  wa_listheader2-typ  = 'H'.
+  wa_listheader2-info ='SAlary header Details'.
+  APPEND wa_listheader2 TO it_listheader2.
+  CLEAR wa_listheader2.
+
+*  Type S is used to display key and value pairs
+  wa_listheader2-typ = 'S'.
+  wa_listheader2-key = 'Date :' .
+  CONCATENATE  sy-datum+6(2)
+               sy-datum+4(2)
+               sy-datum(4)
+               INTO wa_listheader2-info
+               SEPARATED BY '/'.
+  APPEND wa_listheader2 TO it_listheader2.
+  CLEAR wa_listheader2.
+
+*  Type A is used to display italic font
+  wa_listheader2-typ = 'A'.
+  wa_listheader2-info ='SAP ALV Report'.
+  APPEND wa_listheader2 TO it_listheader2.
+  CLEAR wa_listheader2.
+
+ENDFORM.
+
+FORM top2.
+
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = it_listheader2.
+
+ENDFORM.

@@ -1,0 +1,29 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R028_FRIENDCLASS_EMP
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R029_FRIENDCLASS_EMP.
+
+CLASS employee DEFINITION.
+  PUBLIC SECTION.
+    METHODS : set_name IMPORTING iv_name TYPE string.
+ENDCLASS.
+
+CLASS department DEFINITION FRIENDS employee.
+  PRIVATE SECTION.
+  DATA: name TYPE string.
+ENDCLASS.
+
+class employee IMPLEMENTATION.
+  METHOD set_name.
+    data: lo_department type REF TO department.
+    CREATE OBJECT lo_department.
+    lo_department->name = iv_name.
+    WRITE iv_name.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+DATA(lo_employee) = new employee( ).
+lo_employee->set_name( 'Varad' ).

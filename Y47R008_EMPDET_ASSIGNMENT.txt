@@ -1,0 +1,337 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R008_EMPDET_ASSIGNMENT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R008_EMPDET_ASSIGNMENT.
+
+TYPES: BEGIN OF ty_empdet,
+  empno type char5,
+  empnm TYPE char20,
+  gender TYPE char1,
+  dept TYPE char20,
+  loc TYPE char30,
+  salary TYPE i,
+  end of ty_empdet.
+
+TYPES: BEGIN OF ty_empdet1,
+  empno type char5,
+  empnm TYPE char20,
+  gender TYPE char1,
+  birthdt TYPE char20,
+  dept TYPE char20,
+  loc TYPE char30,
+  salary TYPE i,
+  end of ty_empdet1.
+
+Data: gs_empdet TYPE ty_empdet,
+      gt_empdet TYPE TABLE of ty_empdet.
+
+Data: gs_empdet1 TYPE ty_empdet1,
+      gt_empdet1 TYPE TABLE of ty_empdet1.
+
+FIELD-SYMBOLS: <fs_empdet> type ty_empdet.
+
+
+
+START-OF-SELECTION.
+*---- Append
+
+ gs_empdet-empno = '0003'.
+ gs_empdet-empnm = 'Ameya'.
+ gs_empdet-gender = 'M'.
+ gs_empdet-dept = 'MM'.
+ gs_empdet-loc = 'Mumbai'.
+ gs_empdet-salary = 10000.
+ APPEND gs_empdet to gt_empdet.
+
+clear gs_empdet.
+ gs_empdet-empno = '0001'.
+ gs_empdet-empnm = 'Varad'.
+ gs_empdet-gender = 'M'.
+ gs_empdet-dept = 'IT'.
+ gs_empdet-loc = 'Alibag'.
+ gs_empdet-salary = 20000.
+ APPEND gs_empdet to gt_empdet.
+
+ clear gs_empdet.
+ gs_empdet-empno = '0005'.
+ gs_empdet-empnm ='Sakshi'.
+ gs_empdet-gender = 'F'.
+ gs_empdet-dept = 'IT'.
+ gs_empdet-loc = 'Pune'.
+ gs_empdet-salary = 20000.
+ APPEND gs_empdet to gt_empdet.
+
+clear gs_empdet.
+gs_empdet-empno = '0002'.
+ gs_empdet-empnm = 'Vidula'.
+ gs_empdet-gender = 'F'.
+ gs_empdet-dept = 'FI'.
+ gs_empdet-loc = 'kalyan'.
+ gs_empdet-salary = 30000.
+ APPEND gs_empdet to gt_empdet.
+
+clear gs_empdet.
+ gs_empdet-empno = '0004'.
+ gs_empdet-empnm ='Yash'.
+ gs_empdet-gender = 'M'.
+ gs_empdet-dept = 'HR'.
+ gs_empdet-loc = 'Alibag'.
+ gs_empdet-salary = 30000.
+ APPEND gs_empdet to gt_empdet.
+
+
+ clear gs_empdet.
+* WRITE: / 'using Append ' color 1.
+ LOOP AT gt_empdet into gs_empdet.
+   At FIRST.
+     WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+     ULINE.
+   ENDAT.
+   WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+   at LAST.
+     uline.
+   ENDAT.
+ ENDLOOP.
+ skip.
+*
+**-------Modify------
+* clear gs_empdet.
+* gs_empdet-empno = '0004'.
+* gs_empdet-empnm ='Yash'.
+* gs_empdet-gender = 'M'.
+* gs_empdet-dept = 'HR'.
+* gs_empdet-loc = 'Pune'.
+* gs_empdet-salary = 30000.
+* MODIFY gt_empdet  from gs_empdet  INDEX 5.
+*
+*  WRITE: / 'using Modify on 5th Index location' color 1.
+* LOOP AT gt_empdet into gs_empdet.
+*   At FIRST.
+*     WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+*     ULINE.
+*   ENDAT.
+*     WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+*   at LAST.
+*     uline.
+*   ENDAT.
+* ENDLOOP.
+* skip.
+*
+*
+**------Delete statement-----
+* DELETE gt_empdet Index 2.
+* WRITE: / 'using delete on 2nd Index' color 1.
+* LOOP AT gt_empdet into gs_empdet.
+*   At FIRST.
+*     WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+*     ULINE.
+*   ENDAT.
+*   WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+*   at LAST.
+*     uline.
+*   ENDAT.
+* ENDLOOP.
+* skip.
+*
+*
+**------Sort Statement.
+* Sort gt_empdet by empno ASCENDING.
+* WRITE: / 'using Sort In ascending order' color 1.
+* LOOP AT gt_empdet into gs_empdet.
+*   At FIRST.
+*     WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+*     ULINE.
+*   ENDAT.
+*   WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+*   at LAST.
+*     uline.
+*   ENDAT.
+* ENDLOOP.
+* skip.
+*
+*
+**-----Collect------
+* gs_empdet-empno = '0006'.
+* gs_empdet-empnm = 'Harshal'.
+* gs_empdet-gender = 'M'.
+* gs_empdet-dept = 'MM'.
+* gs_empdet-loc = 'Mumbai'.
+* gs_empdet-salary = 10000.
+* COLLECT gs_empdet INTO gt_empdet.
+*
+*clear gs_empdet.
+* gs_empdet-empno = '0006'.
+* gs_empdet-empnm = 'Harshal'.
+* gs_empdet-gender = 'M'.
+* gs_empdet-dept = 'MM'.
+* gs_empdet-loc = 'Mumbai'.
+* gs_empdet-salary = 20000.
+* COLLECT gs_empdet into gt_empdet.
+*
+* clear gs_empdet.
+* gs_empdet-empno = '0007'.
+* gs_empdet-empnm ='Shreya'.
+* gs_empdet-gender = 'F'.
+* gs_empdet-dept = 'IT'.
+* gs_empdet-loc = 'Pune'.
+* gs_empdet-salary = 20000.
+* COLLECT gs_empdet into gt_empdet.
+*
+*clear gs_empdet.
+*gs_empdet-empno = '0007'.
+* gs_empdet-empnm = 'Shreya'.
+* gs_empdet-gender = 'F'.
+* gs_empdet-dept = 'IT'.
+* gs_empdet-loc = 'Pune'.
+* gs_empdet-salary = 30000.
+* COLLECT gs_empdet into gt_empdet.
+*
+*clear gs_empdet.
+* gs_empdet-empno = '0008'.
+* gs_empdet-empnm ='Rahil'.
+* gs_empdet-gender = 'M'.
+* gs_empdet-dept = 'HR'.
+* gs_empdet-loc = 'Thane'.
+* gs_empdet-salary = 30000.
+* COLLECT gs_empdet into gt_empdet.
+*
+*
+** WRITE: / 'using collect to add 5 more entry of empno 0006,0007,0008' color 1.
+* LOOP AT gt_empdet into gs_empdet.
+*   At FIRST.
+*     WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+*     ULINE.
+*   ENDAT.
+*   WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+*   at LAST.
+*     uline.
+*   ENDAT.
+* ENDLOOP.
+* skip.
+*
+*
+**------Read statement------
+* WRITE: / 'using Read to display details of empno= 0005' color 1.
+* read table gt_empdet into gs_empdet with key empno = '0005'.
+* WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+* ULINE.
+* WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+* uline.
+* skip.
+*
+*
+**------Binary search------
+* WRITE: / 'using Binary search to display details of empno= 0007' color 1.
+* Sort gt_empdet by empno ASCENDING.
+* WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+* read table gt_empdet into gs_empdet with key empno = '0007' BINARY SEARCH.
+* ULINE.
+* WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+* uline.
+* skip.
+*
+**------Describe statement
+* DESCRIBE TABLE gt_empdet lines DATA(gv_cnt).
+* WRITE: / 'Describing table gt_empdet to display line count' color 1.
+* WRITE: / 'The count is :',gv_cnt.
+* ULINE.
+* skip.
+*
+*
+**------Move Corresponding------
+* WRITE: / 'Using Move corresponding to move data from empdet to empdet1.' color 1.
+*
+*  LOOP At gt_empdet into gs_empdet.
+*    MOVE-CORRESPONDING gs_empdet to gs_empdet1.
+*    APPEND gs_empdet1 to gt_empdet1.
+*  ENDLOOP.
+*
+*
+*  LOOP AT gt_empdet1 into gs_empdet1.
+*   At FIRST.
+*     WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'birthdate', 40 'dept', 50 'location', 60 'employee-salary'.
+*     ULINE.
+*   ENDAT.
+*   WRITE: / gs_empdet1-empno, 10 gs_empdet1-empnm, 20 gs_empdet1-gender, 30 gs_empdet1-birthdt, 40 gs_empdet1-dept, 50 gs_empdet1-loc, 60 gs_empdet1-salary.
+*   at LAST.
+*     uline.
+*   ENDAT.
+* ENDLOOP.
+* skip.
+*
+*
+**--------Field Symbols
+* WRITE: / 'Using Field symbol to change dept = HR for empno= 0003' color 1.
+* LOOP AT gt_empdet ASSIGNING <fs_empdet>.
+*   IF <fs_empdet>-empno = '0003'.
+*     <fs_empdet>-dept = 'HR'.
+*   ENDIF.
+* ENDLOOP.
+* UNASSIGN <fs_empdet>.
+* LOOP AT gt_empdet into gs_empdet.
+*   At FIRST.
+*     WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+*     ULINE.
+*   ENDAT.
+*   WRITE: / gs_empdet-empno, 10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+*   at LAST.
+*     uline.
+*   ENDAT.
+* ENDLOOP.
+* skip.
+*
+*
+**------Loop events-----
+* WRITE: / 'Using loop events At first, at last, at new, at end' color 1.
+* LOOP AT gt_empdet into gs_empdet.
+*   At FIRST.
+*     WRITE: / 'emp-no', 10 'name', 20 'gender', 30 'dept', 40 'location', 50 'Employee-salary'.
+*     ULINE.
+*     uline.
+*   ENDAT.
+*   At NEW empno.
+*     WRITE: / gs_empdet-empno.
+*   ENDAT.
+*WRITE: /10 gs_empdet-empnm, 20 gs_empdet-gender, 30 gs_empdet-dept, 40 gs_empdet-loc, 50 gs_empdet-salary.
+*   At END OF salary.
+*     WRITE: / 'total salary: ', gs_empdet-salary.
+*     uline.
+*     skip.
+*  endat.
+*
+*   at LAST.
+*     uline.
+*   ENDAT.
+* ENDLOOP.
+* skip.
+*
+*
+*
+**-------continue exit
+* WRITE: / 'Using continue statments' color 1.
+* Uline.
+*DATA: i TYPE i VALUE 1.
+*DO 10 TIMES.
+*  IF i = 5.
+*    i += 1.
+*    CONTINUE.
+*  ENDIF.
+*  WRITE: / i.
+*  i += 1.
+*
+*ENDDO.
+*uline.
+*WRITE: / 'Using exit statments' color 1.
+* Uline.
+*i = 1.
+*DO 10 TIMES.
+*  IF i = 5.
+*    i += 1.
+*    Exit.
+*  ENDIF.
+*  WRITE: / i.
+*  i += 1.
+*
+*ENDDO.

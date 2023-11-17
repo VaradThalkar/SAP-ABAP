@@ -1,0 +1,112 @@
+*&---------------------------------------------------------------------*
+*& Report Y47_DEMO1
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R001_DEMO.
+
+DATA gv_var1 TYPE c LENGTH 10.
+DATA: gv_var2 TYPE c LENGTH 10,
+      gv_var3 TYPE c LENGTH 10.
+
+
+*DATA: gv_num1 TYPE i,
+*      gv_float TYPE p DECIMALS 2.
+*gv_num1 = 12345.
+*gv_float = '10000.67'.
+*gv_var1 = 'varad'.
+*gv_var2 = 'Thalkar'.
+*gv_var3 = 'Rajesh'.
+*DATA gv_string TYPE string.
+*gv_string = 'Hello World'.
+
+*WRITE: gv_var1, gv_var2, gv_var3.
+*WRITE: / gc_con1,/ gv_num1,/ gv_float.
+
+CONSTANTS: gc_con1 TYPE char11 VALUE 'Hello World'.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE Input.
+PARAMETERS: p_var1 TYPE i MODIF ID MD1,
+            p_var2 TYPE i MODIF ID MD1,
+            p_String TYPE string MODIF ID MD2,
+            p_str2 TYPE char10 MODIF ID MD2.
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE type.
+PARAMETERS: p_Chk AS CHECKBOX,
+            p_sum RADIOBUTTON GROUP rb1,
+            p_sub RADIOBUTTON GROUP rb1,
+            p_mult RADIOBUTTON GROUP rb1,
+            p_div RADIOBUTTON GROUP rb1.
+SELECTION-SCREEN END OF BLOCK b2.
+
+AT SELECTION-SCREEN.
+  IF p_var1 < p_var2.
+    MESSAGE 'Variable 2 can not be greater than veriable 1' TYPE 'E'.
+  ENDIF.
+
+AT SELECTION-SCREEN ON p_var1.
+  if p_var1 is INITIAL.
+    MESSAGE 'Variable 1 cannot be empty' TYPE 'E'.
+  ENDIF.
+
+AT SELECTION-SCREEN ON p_var2.
+  if p_var2 is INITIAL.
+    MESSAGE 'Variable 2 cannot be empty' TYPE 'E'.
+  ENDIF.
+
+AT SELECTION-SCREEN OUTPUT.
+  LOOP AT SCREEN.
+    IF p_chk = abap_true.
+      IF screen-group1 = 'MD1'.
+        screen-active = 1.
+        screen-input = 0.
+*        p_var1 = 100.
+*        p_var2 = 10.
+      ELSE.
+        screen-active = 1.
+        screen-input = 1.
+      ENDIF.
+    ELSE.
+      IF screen-group1 = 'MD2'.
+        screen-input = 0.
+        p_string = 'This is initial screen value'.
+      ENDIF.
+    ENDIF.
+    MODIFY SCREEN.
+  ENDLOOP.
+START-OF-SELECTION.
+
+WRITE: / p_string.
+Data: gv_sum TYPE i,
+      gv_sub TYPE i,
+      gv_mult TYPE i,
+      gv_div TYPE p DECIMALS 2.
+IF p_sum = abap_true.
+  gv_sum = p_var1 + p_var2.
+  WRITE: /'Addition is       ', gv_sum.
+ENDIF.
+IF p_sub = abap_true.
+  gv_sub = P_var1 - p_var2.
+  WRITE:  /'Substraction is   ', gv_sub.
+ENDIF.
+
+IF p_mult = abap_true.
+  gv_mult = P_var1 * p_var2.
+  WRITE: /'Multiplication is ', gv_mult.
+ENDIF.
+
+IF p_div = abap_true.
+  gv_div = P_var1 / p_var2.
+  WRITE:  /'Division is       ', gv_div.
+
+ENDIF.
+INITIALIZATION.
+P_var1 = 100.
+p_var2 = 200.
+
+TOP-OF-PAGE.
+WRITE: 'Top of page'.
+
+END-OF-PAGE.
+WRITE 'End of page'.

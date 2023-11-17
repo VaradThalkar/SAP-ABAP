@@ -1,0 +1,39 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R130_ASSIGNMENTQ30
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R130_ASSIGNMENTQ30.
+
+SELECTION-SCREEN BEGIN OF BLOCK b WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_D1 TYPE sy-datum OBLIGATORY.
+
+SELECTION-SCREEN END OF BLOCK b.
+
+DATA: gv_day TYPE char1, gv_wkday TYPE string.
+
+
+CALL FUNCTION 'DATE_COMPUTE_DAY'
+  EXPORTING
+    date = p_d1
+  IMPORTING
+    day  = gv_day.
+
+CASE gv_day.
+  WHEN 1.
+    gv_wkday = 'Monday'.
+  WHEN 2.
+    gv_wkday = 'Tuesday'.
+  WHEN 3.
+    gv_wkday = 'Wednesday'.
+  WHEN 4.
+    gv_wkday = 'Thursday'.
+  WHEN 5.
+    gv_wkday = 'Friday'.
+  WHEN 6.
+    gv_wkday = 'Saturday'.
+  WHEN 7.
+    gv_wkday = 'Sunday'.
+  WHEN OTHERS.
+ENDCASE.
+WRITE: 'Input Date  :',p_d1, / 'Day of week : ',gv_wkday.

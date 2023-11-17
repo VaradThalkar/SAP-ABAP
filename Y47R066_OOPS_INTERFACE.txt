@@ -1,0 +1,52 @@
+*&---------------------------------------------------------------------*
+*& Report Y47R066_OOPS_INTERFACE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT Y47R066_OOPS_INTERFACE.
+
+INTERFACE zif_demo.
+
+METHODS display.
+
+ENDINTERFACE.
+
+
+****class definition ****
+
+CLASS zcl_demo DEFINITION.
+
+PUBLIC SECTION.
+
+INTERFACES zif_demo.
+
+ENDCLASS.
+
+
+
+****class implementation****
+
+CLASS zcl_demo IMPLEMENTATION.
+
+METHOD zif_demo~display.                                                              "Interface Method implementation
+
+WRITE : 'This is the interface method in class 1'.
+
+ENDMETHOD.
+
+ENDCLASS.
+
+
+****creating class object****
+
+START-OF-SELECTION.
+
+DATA : object_demo TYPE REF TO zcl_demo.
+
+CREATE OBJECT object_demo.
+
+WRITE: / 'Implementation of Interface' COLOR 3.
+
+SKIP.
+
+CALL METHOD : object_demo->zif_demo~display.
